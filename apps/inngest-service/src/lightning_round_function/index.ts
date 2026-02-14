@@ -1,9 +1,9 @@
-import { inngest } from "../inngest/client.ts";
 import { generateText, Output } from "ai";
-import { gateway } from "../ai-gateway/client.ts";
-import { LightningQuestionSchema, LightningAnswerSchema } from "../schemas/enhanced-types.ts";
-import { enhancedDebateStore } from "../state/enhanced-debate-store.ts";
 import { z } from "zod";
+import { gateway } from "../ai-gateway/client.ts";
+import { inngest } from "../inngest/client.ts";
+import { LightningAnswerSchema, LightningQuestionSchema } from "../schemas/enhanced-types.ts";
+import { enhancedDebateStore } from "../state/enhanced-debate-store.ts";
 
 /**
  * Lightning Round
@@ -11,23 +11,23 @@ import { z } from "zod";
  * Creates tension and can force concessions
  */
 export const lightningRoundFunction = inngest.createFunction(
-    { id: "lightning-round" },
-    { event: "lightning/start" },
-    async ({ event, step }) => {
-        const { debateId, topic, agents } = event.data;
+  { id: "lightning-round" },
+  { event: "lightning/start" },
+  async ({ event, step }) => {
+    const { debateId, topic, agents } = event.data;
 
-        console.log(`⚡ Starting lightning round for: "${topic}"`);
+    console.log(`⚡ Starting lightning round for: "${topic}"`);
 
-        // Step 1: Generate lightning questions
-        const questions = await step.run("generate-lightning-questions", async () => {
-            const result = await generateText({
-                model: gateway("google/gemini-3-flash"),
-                output: Output.object({
-                    schema: z.object({
-                        questions: z.array(LightningQuestionSchema)
-                    })
-                }),
-                prompt: `Generate 4 RAPID-FIRE questions for this debate.
+    // Step 1: Generate lightning questions
+    const questions = await step.run("generate-lightning-questions", async () => {
+      const result = await generateText({
+        model: gateway("google/gemini-3-flash"),
+        output: Output.object({
+          schema: z.object({
+            questions: z.array(LightningQuestionSchema),
+          }),
+        }),
+        prompt: `Generate 4 RAPID-FIRE questions for this debate.
 
 DEBATE TOPIC: "${topic}"
 
@@ -56,30 +56,30 @@ For each question:
 - time_limit_seconds (30 or 60)
 - forces_position (true/false)
 
-Return 4 questions that will make agents squirm.`
-            });
+Return 4 questions that will make agents squirm.`,
+      });
 
-            console.log(`✅ Generated ${result.output.questions.length} lightning questions`);
-            return result.output.questions;
-        });
+      console.log(`✅ Generated ${result.output.questions.length} lightning questions`);
+      return result.output.questions;
+    });
 
-        // Step 2: Get rapid responses from both agents
-        const allAnswers = await step.run("get-all-answers", async () => {
-            const answerSets = {
-                pro: [] as any[],
-                con: [] as any[]
-            };
+    // Step 2: Get rapid responses from both agents
+    const allAnswers = await step.run("get-all-answers", async () => {
+      const answerSets = {
+        pro: [] as any[],
+        con: [] as any[],
+      };
 
-            for (const agent of agents) {
-                const side = agent.side as 'pro' | 'con'; // Use explicit side field
+      for (const agent of agents) {
+        const side = agent.side as "pro" | "con"; // Use explicit side field
 
-                for (const question of questions) {
-                    const result = await generateText({
-                        model: gateway("google/gemini-3-flash"),
-                        output: Output.object({
-                            schema: LightningAnswerSchema
-                        }),
-                        prompt: `LIGHTNING ROUND - Answer in ${question.time_limit_seconds} seconds or less!
+        for (const question of questions) {
+          const result = await generateText({
+            model: gateway("google/gemini-3-flash"),
+            output: Output.object({
+              schema: LightningAnswerSchema,
+            }),
+            prompt: `LIGHTNING ROUND - Answer in ${question.time_limit_seconds} seconds or less!
 
 You are ${agent.persona.name}.
 YOUR STANCE: ${agent.stance}
@@ -87,7 +87,7 @@ YOUR STANCE: ${agent.stance}
 QUESTION: ${question.question}
 
 RULES:
-- Maximum ${question.time_limit_seconds === 30 ? '50' : '100'} words
+- Maximum ${question.time_limit_seconds === 30 ? "50" : "100"} words
 - Be DIRECT - no hedging, no "it depends"
 - If the question forces a choice, CHOOSE
 - If it asks for a red line, GIVE ONE
@@ -95,62 +95,62 @@ RULES:
 
 If you must make a concession, do it quickly and move on.
 
-Your rapid-fire answer:`
-                    });
+Your rapid-fire answer:`,
+          });
 
-                    const answer = result.output;
+          const answer = result.output;
 
-                    answerSets[side].push(answer);
+          answerSets[side].push(answer);
 
-                    console.log(`✅ ${agent.persona.name} answered: "${answer.answer.substring(0, 50)}..."`);
-                }
-            }
+          console.log(`✅ ${agent.persona.name} answered: "${answer.answer.substring(0, 50)}..."`);
+        }
+      }
 
-            return answerSets;
-        });
+      return answerSets;
+    });
 
-        // Step 3: Identify concessions
-        const concessions = await step.run("identify-concessions", async () => {
-            const allConcessions: string[] = [];
+    // Step 3: Identify concessions
+    const concessions = await step.run("identify-concessions", async () => {
+      const allConcessions: string[] = [];
 
-            [...allAnswers.pro, ...allAnswers.con].forEach((answer: any, idx: number) => {
-                if (answer.concession_made) {
-                    const agent = idx < allAnswers.pro.length ? agents[0].persona : agents[1].persona;
-                    allConcessions.push(`${agent}: ${answer.answer}`);
-                }
-            });
+      [...allAnswers.pro, ...allAnswers.con].forEach((answer: any, idx: number) => {
+        if (answer.concession_made) {
+          const agent = idx < allAnswers.pro.length ? agents[0].persona : agents[1].persona;
+          allConcessions.push(`${agent}: ${answer.answer}`);
+        }
+      });
 
-            console.log(`🎯 Identified ${allConcessions.length} concessions`);
-            return allConcessions;
-        });
+      console.log(`🎯 Identified ${allConcessions.length} concessions`);
+      return allConcessions;
+    });
 
-        // Step 4: Store results
-        await step.run("store-results", async () => {
-            enhancedDebateStore.setLightningRound(debateId, {
-                questions,
-                proAnswers: allAnswers.pro,
-                conAnswers: allAnswers.con,
-                concessionsMade: concessions
-            });
+    // Step 4: Store results
+    await step.run("store-results", async () => {
+      enhancedDebateStore.setLightningRound(debateId, {
+        questions,
+        proAnswers: allAnswers.pro,
+        conAnswers: allAnswers.con,
+        concessionsMade: concessions,
+      });
 
-            enhancedDebateStore.updatePhase(debateId, 'lightning-round', 'Complete', 1.0);
-        });
+      enhancedDebateStore.updatePhase(debateId, "lightning-round", "Complete", 1.0);
+    });
 
-        // Step 5: Emit completion event
-        await step.run("emit-completion", async () => {
-            await inngest.send({
-                name: "lightning/complete",
-                data: {
-                    debateId
-                }
-            });
-            console.log("✅ Lightning round complete event sent");
-        });
+    // Step 5: Emit completion event
+    await step.run("emit-completion", async () => {
+      await inngest.send({
+        name: "lightning/complete",
+        data: {
+          debateId,
+        },
+      });
+      console.log("✅ Lightning round complete event sent");
+    });
 
-        return {
-            questions,
-            answers: allAnswers,
-            concessions
-        };
-    }
+    return {
+      questions,
+      answers: allAnswers,
+      concessions,
+    };
+  },
 );

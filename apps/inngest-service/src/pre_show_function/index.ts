@@ -1,6 +1,6 @@
-import { inngest } from "../inngest/client.ts";
 import { generateText, Output } from "ai";
 import { gateway } from "../ai-gateway/client.ts";
+import { inngest } from "../inngest/client.ts";
 import { PreShowSchema } from "../schemas/enhanced-types.ts";
 import { enhancedDebateStore } from "../state/enhanced-debate-store.ts";
 
@@ -9,26 +9,26 @@ import { enhancedDebateStore } from "../state/enhanced-debate-store.ts";
  * Creates anticipation by explaining why the debate matters and predicting outcomes
  */
 export const preShowFunction = inngest.createFunction(
-    { id: "pre-show-generator" },
-    { event: "pre-show/generate" },
-    async ({ event, step }) => {
-        const { debateId, topic, analysis, agents } = event.data;
+  { id: "pre-show-generator" },
+  { event: "pre-show/generate" },
+  async ({ event, step }) => {
+    const { debateId, topic, analysis, agents } = event.data;
 
-        console.log(`🎬 Generating pre-show content for: "${topic}"`);
+    console.log(`🎬 Generating pre-show content for: "${topic}"`);
 
-        // Generate pre-show content
-        const preShow = await step.run("generate-pre-show", async () => {
-            const result = await generateText({
-                model: gateway("google/gemini-3-flash"),
-                output: Output.object({
-                    schema: PreShowSchema
-                }),
-                prompt: `You are introducing an AI debate to an audience. Make them excited and curious!
+    // Generate pre-show content
+    const preShow = await step.run("generate-pre-show", async () => {
+      const result = await generateText({
+        model: gateway("google/gemini-3-flash"),
+        output: Output.object({
+          schema: PreShowSchema,
+        }),
+        prompt: `You are introducing an AI debate to an audience. Make them excited and curious!
 
 DEBATE TOPIC: "${topic}"
 
 AGENTS:
-${agents.map((a: any) => `- ${a.persona} (${a.stance})`).join('\n')}
+${agents.map((a: any) => `- ${a.persona} (${a.stance})`).join("\n")}
 
 DEBATE STRUCTURE: ${analysis.debateType}, ${analysis.rounds} rounds
 
@@ -60,29 +60,29 @@ Generate pre-show content:
    - Should add up to 100
    - Example: Pro: 55, Con: 45
 
-Keep it ENGAGING, not academic. Write like you're hyping up a championship bout.`
-            });
+Keep it ENGAGING, not academic. Write like you're hyping up a championship bout.`,
+      });
 
-            console.log("✅ Pre-show content generated:", result.output);
+      console.log("✅ Pre-show content generated:", result.output);
 
-            // Store in debate state
-            enhancedDebateStore.setPreShow(debateId, result.output);
-            enhancedDebateStore.updatePhase(debateId, 'pre-show', 'Complete', 1.0);
+      // Store in debate state
+      enhancedDebateStore.setPreShow(debateId, result.output);
+      enhancedDebateStore.updatePhase(debateId, "pre-show", "Complete", 1.0);
 
-            return result.output;
-        });
+      return result.output;
+    });
 
-        // Emit completion event
-        await step.run("emit-completion", async () => {
-            await inngest.send({
-                name: "pre-show/complete",
-                data: {
-                    debateId
-                }
-            });
-            console.log("✅ Pre-show complete event sent");
-        });
+    // Emit completion event
+    await step.run("emit-completion", async () => {
+      await inngest.send({
+        name: "pre-show/complete",
+        data: {
+          debateId,
+        },
+      });
+      console.log("✅ Pre-show complete event sent");
+    });
 
-        return preShow;
-    }
+    return preShow;
+  },
 );

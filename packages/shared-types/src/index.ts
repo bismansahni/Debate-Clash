@@ -12,4 +12,4 @@ export interface ApiResponse<T = any> {
   error?: string;
 }
 
-export type AppEnv = 'development' | 'staging' | 'production';
+export type AppEnv = "development" | "staging" | "production";

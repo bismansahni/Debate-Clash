@@ -1,8 +1,7 @@
-// components/arena/LiveStats.tsx
 "use client";
 
 import { motion } from "framer-motion";
-import { DebateData } from "@/types/debate";
+import type { DebateData } from "@/types/debate";
 
 interface LiveStatsProps {
   debate: DebateData;
@@ -12,35 +11,46 @@ export function LiveStats({ debate }: LiveStatsProps) {
   const stats = calculateDebateStats(debate);
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <div>
-        <h3 className="text-base sm:text-lg font-bold mb-1">📊 Live Stats</h3>
-        <p className="text-xs text-gray-500">Real-time analytics</p>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <span className="font-[family-name:var(--font-jetbrains)] text-[0.6rem] uppercase tracking-[0.2em] text-[var(--arena-text-dim)]">
+          Live Stats
+        </span>
+        <div className="flex items-center gap-1.5">
+          <div className="w-1.5 h-1.5 rounded-full bg-[#22c55e] animate-flicker" />
+          <span className="font-[family-name:var(--font-jetbrains)] text-[0.5rem] text-[var(--arena-text-dim)]">
+            LIVE
+          </span>
+        </div>
       </div>
 
-      {debate.momentum?.history && debate.momentum.history.length > 0 && (
-        <div className="bg-gray-800/50 rounded-lg sm:rounded-xl p-3 sm:p-4">
-          <div className="text-xs sm:text-sm font-semibold text-gray-400 mb-3">MOMENTUM TIMELINE</div>
-          <div className="space-y-2">
-            {debate.momentum.history.slice(-5).map((event, idx) => (
-              <div key={idx} className="flex items-center gap-2 text-xs">
-                <div className={`w-2 h-2 rounded-full flex-shrink-0 ${event.shift > 0 ? 'bg-blue-400' : 'bg-purple-400'}`} />
-                <div className="flex-1 min-w-0">
-                  <div className="truncate text-gray-300">{event.description}</div>
-                  <div className="text-gray-600 font-mono">{event.phase}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-2">
         <StatBox label="Questions" value={stats.totalQuestions} />
         <StatBox label="Concessions" value={stats.totalConcessions} />
         <StatBox label="Evasions" value={stats.totalEvasions} />
         <StatBox label="Clashes" value={stats.totalCounterAttacks} />
       </div>
+
+      {debate.momentum?.history && debate.momentum.history.length > 0 && (
+        <div className="arena-panel p-3">
+          <div className="font-[family-name:var(--font-jetbrains)] text-[0.55rem] uppercase tracking-wider text-[var(--arena-text-dim)] mb-2">
+            Recent Shifts
+          </div>
+          <div className="space-y-1.5">
+            {debate.momentum.history.slice(-3).map((event, idx) => (
+              <div key={idx} className="flex items-center gap-2 text-[0.55rem]">
+                <div
+                  className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                  style={{ background: event.shift > 0 ? "var(--pro)" : "var(--con)" }}
+                />
+                <span className="font-[family-name:var(--font-source-serif)] text-[var(--arena-text-muted)] truncate">
+                  {event.description}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -50,10 +60,14 @@ function StatBox({ label, value }: { label: string; value: number }) {
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="bg-gray-800/50 rounded-lg p-3 text-center"
+      className="arena-panel p-3 text-center"
     >
-      <div className="text-2xl sm:text-3xl font-mono font-light mb-1">{value}</div>
-      <div className="text-[0.625rem] sm:text-xs text-gray-500 uppercase tracking-wide">{label}</div>
+      <div className="font-[family-name:var(--font-jetbrains)] text-xl font-light text-[var(--arena-text)] mb-0.5">
+        {value}
+      </div>
+      <div className="font-[family-name:var(--font-jetbrains)] text-[0.5rem] uppercase tracking-wider text-[var(--arena-text-dim)]">
+        {label}
+      </div>
     </motion.div>
   );
 }
@@ -65,16 +79,14 @@ function calculateDebateStats(debate: DebateData) {
   let totalCounterAttacks = 0;
 
   if (debate.phases?.crossExamination) {
-    [debate.phases.crossExamination.round1, debate.phases.crossExamination.round2]
-      .filter(Boolean)
-      .forEach(round => {
-        if (round) {
-          totalQuestions += round.questions.length;
-          totalConcessions += round.analysis.concessions_made.length;
-          totalEvasions += round.analysis.evasions.length;
-          totalCounterAttacks += round.analysis.counter_attacks.length;
-        }
-      });
+    [debate.phases.crossExamination.round1, debate.phases.crossExamination.round2].filter(Boolean).forEach((round) => {
+      if (round) {
+        totalQuestions += round.questions.length;
+        totalConcessions += round.analysis.concessions_made.length;
+        totalEvasions += round.analysis.evasions.length;
+        totalCounterAttacks += round.analysis.counter_attacks.length;
+      }
+    });
   }
 
   if (debate.phases?.lightningRound) {

@@ -1,9 +1,9 @@
-import { inngest } from "../inngest/client.ts";
 import { generateText, Output } from "ai";
+import { z } from "zod";
 import { gateway } from "../ai-gateway/client.ts";
+import { inngest } from "../inngest/client.ts";
 import { AudienceQuestionSchema } from "../schemas/enhanced-types.ts";
 import { enhancedDebateStore } from "../state/enhanced-debate-store.ts";
-import { z } from "zod";
 
 /**
  * Audience Questions Phase
@@ -11,26 +11,26 @@ import { z } from "zod";
  * Adds unpredictability and different perspectives
  */
 export const audienceQuestionsFunction = inngest.createFunction(
-    { id: "audience-questions" },
-    { event: "audience/ask-questions" },
-    async ({ event, step }) => {
-        const { debateId, topic, agents, debateContext } = event.data;
+  { id: "audience-questions" },
+  { event: "audience/ask-questions" },
+  async ({ event, step }) => {
+    const { debateId, topic, agents, debateContext } = event.data;
 
-        console.log(`👥 Generating audience questions for: "${topic}"`);
+    console.log(`👥 Generating audience questions for: "${topic}"`);
 
-        // Step 1: Generate 3 audience personas with questions
-        const audienceQuestions = await step.run("generate-audience-questions", async () => {
-            const result = await generateText({
-                model: gateway("google/gemini-3-flash"),
-                output: Output.object({
-                    schema: z.object({
-                        questions: z.array(AudienceQuestionSchema)
-                    })
-                }),
-                prompt: `Generate 3 audience questions for this debate.
+    // Step 1: Generate 3 audience personas with questions
+    const audienceQuestions = await step.run("generate-audience-questions", async () => {
+      const result = await generateText({
+        model: gateway("google/gemini-3-flash"),
+        output: Output.object({
+          schema: z.object({
+            questions: z.array(AudienceQuestionSchema),
+          }),
+        }),
+        prompt: `Generate 3 audience questions for this debate.
 
 DEBATE TOPIC: "${topic}"
-AGENTS: ${agents.map((a: any) => `${a.persona} (${a.stance})`).join(', ')}
+AGENTS: ${agents.map((a: any) => `${a.persona} (${a.stance})`).join(", ")}
 
 DEBATE SO FAR:
 ${JSON.stringify(debateContext, null, 2)}
@@ -64,23 +64,23 @@ For each persona, provide:
 - name, perspective, bias, question_style
 - question (the actual question they're asking)
 - challenges (pro, con, or both)
-- forces_specificity (true/false)`
-            });
+- forces_specificity (true/false)`,
+      });
 
-            console.log(`✅ Generated ${result.output.questions.length} audience questions`);
-            return result.output.questions;
-        });
+      console.log(`✅ Generated ${result.output.questions.length} audience questions`);
+      return result.output.questions;
+    });
 
-        // Step 2: Get Pro responses
-        const proAgent = agents.find((a: any) => a.side === 'pro');
+    // Step 2: Get Pro responses
+    const proAgent = agents.find((a: any) => a.side === "pro");
 
-        const proResponses = await step.run("get-pro-responses", async () => {
-            const responses = [];
+    const proResponses = await step.run("get-pro-responses", async () => {
+      const responses = [];
 
-            for (const audienceQ of audienceQuestions) {
-                const result = await generateText({
-                    model: gateway("google/gemini-3-flash"),
-                    prompt: `You are ${proAgent.persona} answering an audience question.
+      for (const audienceQ of audienceQuestions) {
+        const result = await generateText({
+          model: gateway("google/gemini-3-flash"),
+          prompt: `You are ${proAgent.persona} answering an audience question.
 
 YOUR STANCE: ${proAgent.stance}
 YOUR SYSTEM: ${proAgent.systemPrompt}
@@ -96,30 +96,30 @@ Answer this question:
 - Show empathy if it's a personal concern
 - Don't dodge - this is the audience, not your opponent
 
-Your answer:`
-                });
-
-                responses.push({
-                    question: audienceQ.question,
-                    persona: audienceQ.persona.name,
-                    answer: result.text
-                });
-            }
-
-            console.log(`✅ Pro agent answered ${responses.length} questions`);
-            return responses;
+Your answer:`,
         });
 
-        // Step 3: Get Con responses
-        const conAgent = agents.find((a: any) => a.side === 'con');
+        responses.push({
+          question: audienceQ.question,
+          persona: audienceQ.persona.name,
+          answer: result.text,
+        });
+      }
 
-        const conResponses = await step.run("get-con-responses", async () => {
-            const responses = [];
+      console.log(`✅ Pro agent answered ${responses.length} questions`);
+      return responses;
+    });
 
-            for (const audienceQ of audienceQuestions) {
-                const result = await generateText({
-                    model: gateway("google/gemini-3-flash"),
-                    prompt: `You are ${conAgent.persona} answering an audience question.
+    // Step 3: Get Con responses
+    const conAgent = agents.find((a: any) => a.side === "con");
+
+    const conResponses = await step.run("get-con-responses", async () => {
+      const responses = [];
+
+      for (const audienceQ of audienceQuestions) {
+        const result = await generateText({
+          model: gateway("google/gemini-3-flash"),
+          prompt: `You are ${conAgent.persona} answering an audience question.
 
 YOUR STANCE: ${conAgent.stance}
 YOUR SYSTEM: ${conAgent.systemPrompt}
@@ -135,47 +135,42 @@ Answer this question:
 - Show empathy if it's a personal concern
 - Don't dodge - this is the audience, not your opponent
 
-Your answer:`
-                });
-
-                responses.push({
-                    question: audienceQ.question,
-                    persona: audienceQ.persona.name,
-                    answer: result.text
-                });
-            }
-
-            console.log(`✅ Con agent answered ${responses.length} questions`);
-            return responses;
+Your answer:`,
         });
 
-        // Step 4: Store results
-        await step.run("store-results", async () => {
-            enhancedDebateStore.setAudienceQuestions(
-                debateId,
-                audienceQuestions,
-                proResponses,
-                conResponses
-            );
-
-            enhancedDebateStore.updatePhase(debateId, 'audience-questions', 'Complete', 1.0);
+        responses.push({
+          question: audienceQ.question,
+          persona: audienceQ.persona.name,
+          answer: result.text,
         });
+      }
 
-        // Step 5: Emit completion event
-        await step.run("emit-completion", async () => {
-            await inngest.send({
-                name: "audience/complete",
-                data: {
-                    debateId
-                }
-            });
-            console.log("✅ Audience questions complete event sent");
-        });
+      console.log(`✅ Con agent answered ${responses.length} questions`);
+      return responses;
+    });
 
-        return {
-            questions: audienceQuestions,
-            proResponses,
-            conResponses
-        };
-    }
+    // Step 4: Store results
+    await step.run("store-results", async () => {
+      enhancedDebateStore.setAudienceQuestions(debateId, audienceQuestions, proResponses, conResponses);
+
+      enhancedDebateStore.updatePhase(debateId, "audience-questions", "Complete", 1.0);
+    });
+
+    // Step 5: Emit completion event
+    await step.run("emit-completion", async () => {
+      await inngest.send({
+        name: "audience/complete",
+        data: {
+          debateId,
+        },
+      });
+      console.log("✅ Audience questions complete event sent");
+    });
+
+    return {
+      questions: audienceQuestions,
+      proResponses,
+      conResponses,
+    };
+  },
 );

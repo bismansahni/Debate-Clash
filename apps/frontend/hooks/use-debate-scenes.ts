@@ -1,8 +1,8 @@
-import { useMemo } from 'react';
+import { useMemo } from "react";
 
 export interface Scene {
   id: string;
-  type: 'intro' | 'round-title' | 'arguments' | 'analysis' | 'judging' | 'winner';
+  type: "intro" | "round-title" | "arguments" | "analysis" | "judging" | "winner";
   data: any;
   duration: number; // ms to show this scene
 }
@@ -21,8 +21,8 @@ export function useDebateScenes(debateData: DebateData): Scene[] {
 
     // Intro scene
     sceneList.push({
-      id: 'intro',
-      type: 'intro',
+      id: "intro",
+      type: "intro",
       data: { topic: debateData.topic },
       duration: 3000,
     });
@@ -33,7 +33,7 @@ export function useDebateScenes(debateData: DebateData): Scene[] {
         // Round title
         sceneList.push({
           id: `round-${roundIdx}-title`,
-          type: 'round-title',
+          type: "round-title",
           data: { roundNumber: round.roundNumber },
           duration: 2500,
         });
@@ -42,7 +42,7 @@ export function useDebateScenes(debateData: DebateData): Scene[] {
         if (round.arguments && round.arguments.length > 0) {
           sceneList.push({
             id: `round-${roundIdx}-arguments`,
-            type: 'arguments',
+            type: "arguments",
             data: {
               roundNumber: round.roundNumber,
               arguments: round.arguments,
@@ -55,7 +55,7 @@ export function useDebateScenes(debateData: DebateData): Scene[] {
         if (round.moderation || round.factChecks) {
           sceneList.push({
             id: `round-${roundIdx}-analysis`,
-            type: 'analysis',
+            type: "analysis",
             data: {
               moderation: round.moderation,
               factChecks: round.factChecks,
@@ -71,7 +71,7 @@ export function useDebateScenes(debateData: DebateData): Scene[] {
       debateData.judging.judges.forEach((judge: any, i: number) => {
         sceneList.push({
           id: `judge-${i}`,
-          type: 'judging',
+          type: "judging",
           data: judge,
           duration: 4000,
         });
@@ -81,8 +81,8 @@ export function useDebateScenes(debateData: DebateData): Scene[] {
     // Winner
     if (debateData.winner) {
       sceneList.push({
-        id: 'winner',
-        type: 'winner',
+        id: "winner",
+        type: "winner",
         data: debateData.winner,
         duration: 8000,
       });

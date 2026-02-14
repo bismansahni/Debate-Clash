@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Scene } from './use-debate-scenes';
+import { useEffect, useState } from "react";
+import type { Scene } from "./use-debate-scenes";
 
 export function useAutoPlay(scenes: Scene[], initialAutoPlay = true) {
   const [currentSceneIndex, setCurrentSceneIndex] = useState(0);
@@ -13,7 +13,7 @@ export function useAutoPlay(scenes: Scene[], initialAutoPlay = true) {
 
     const timer = setTimeout(() => {
       if (currentSceneIndex < scenes.length - 1) {
-        setCurrentSceneIndex(i => i + 1);
+        setCurrentSceneIndex((i) => i + 1);
       } else {
         setIsPlaying(false); // End of debate
       }
@@ -24,17 +24,17 @@ export function useAutoPlay(scenes: Scene[], initialAutoPlay = true) {
 
   const next = () => {
     if (currentSceneIndex < scenes.length - 1) {
-      setCurrentSceneIndex(i => i + 1);
+      setCurrentSceneIndex((i) => i + 1);
     }
   };
 
   const prev = () => {
     if (currentSceneIndex > 0) {
-      setCurrentSceneIndex(i => i - 1);
+      setCurrentSceneIndex((i) => i - 1);
     }
   };
 
-  const togglePlay = () => setIsPlaying(p => !p);
+  const togglePlay = () => setIsPlaying((p) => !p);
 
   const goToScene = (index: number) => {
     if (index >= 0 && index < scenes.length) {

@@ -1,40 +1,10 @@
 {
+  "extends": "@repo/tsconfig/base.json",
   "compilerOptions": {
-    /* Language and Environment */
-    "target": "ESNext",
     "lib": ["ESNext"],
-
-    /* Modules */
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "resolveJsonModule": true,
+    "target": "ESNext",
     "allowImportingTsExtensions": true,
-    "moduleDetection": "force",
-
-    /* Emit */
-    "noEmit": true,
     "sourceMap": true,
-
-    /* Interop Constraints */
-    "allowJs": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "isolatedModules": true,
-    "verbatimModuleSyntax": true,
-
-    /* Type Checking */
-    "strict": true,
-    "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true,
-    "allowUnusedLabels": false,
-    "allowUnreachableCode": false,
-
-    /* Completeness */
-    "skipLibCheck": true,
-
-    /* Node Types */
     "types": ["node"]
   },
   "include": ["src/**/*", "index.ts", "test-*.ts"],

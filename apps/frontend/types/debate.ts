@@ -25,7 +25,7 @@ export interface Agent {
   id: string;
   position: string;
   stance: string;
-  side: 'pro' | 'con';
+  side: "pro" | "con";
   persona: AgentPersona;
   systemPrompt: string;
 }
@@ -85,8 +85,8 @@ export interface MomentumScore {
 export interface MomentumData {
   currentScore: MomentumScore;
   history: MomentumEvent[];
-  currentLeader: 'pro' | 'con' | 'tied';
-  volatility: 'stable' | 'volatile';
+  currentLeader: "pro" | "con" | "tied";
+  volatility: "stable" | "volatile";
 }
 
 export interface ControversyMoment {

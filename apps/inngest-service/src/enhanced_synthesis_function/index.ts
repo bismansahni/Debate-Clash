@@ -1,6 +1,6 @@
-import { inngest } from "../inngest/client.ts";
 import { generateText, Output } from "ai";
 import { gateway } from "../ai-gateway/client.ts";
+import { inngest } from "../inngest/client.ts";
 import { EnhancedSynthesisSchema } from "../schemas/enhanced-types.ts";
 import { enhancedDebateStore } from "../state/enhanced-debate-store.ts";
 import { rankControversyMoments } from "../utils/controversy-detector.ts";
@@ -10,27 +10,27 @@ import { rankControversyMoments } from "../utils/controversy-detector.ts";
  * Creates narrative storytelling summary instead of bullet points
  */
 export const enhancedSynthesisFunction = inngest.createFunction(
-    { id: "enhanced-synthesis" },
-    { event: "synthesis/generate" },
-    async ({ event, step }) => {
-        const { debateId, debateData } = event.data;
+  { id: "enhanced-synthesis" },
+  { event: "synthesis/generate" },
+  async ({ event, step }) => {
+    const { debateId, debateData } = event.data;
 
-        console.log(`📖 ENHANCED SYNTHESIS: Creating narrative story`);
+    console.log(`📖 ENHANCED SYNTHESIS: Creating narrative story`);
 
-        enhancedDebateStore.updatePhase(debateId, 'synthesis', 'Generating', 0);
+    enhancedDebateStore.updatePhase(debateId, "synthesis", "Generating", 0);
 
-        // Extract winner info
-        const finalScore = debateData.phases.verdict?.finalScore;
-        const winner = finalScore?.winner || "Unknown";
-        const margin = finalScore?.margin || 0;
+    // Extract winner info
+    const finalScore = debateData.phases.verdict?.finalScore;
+    const winner = finalScore?.winner || "Unknown";
+    const margin = finalScore?.margin || 0;
 
-        const synthesis = await step.run("generate-synthesis", async () => {
-            const result = await generateText({
-                model: gateway("google/gemini-3-flash"),
-                output: Output.object({
-                    schema: EnhancedSynthesisSchema
-                }),
-                prompt: `You are a master storyteller analyzing this debate.
+    const synthesis = await step.run("generate-synthesis", async () => {
+      const result = await generateText({
+        model: gateway("google/gemini-3-flash"),
+        output: Output.object({
+          schema: EnhancedSynthesisSchema,
+        }),
+        prompt: `You are a master storyteller analyzing this debate.
 
 COMPLETE DEBATE DATA:
 ${JSON.stringify(debateData, null, 2)}
@@ -107,104 +107,104 @@ STYLE:
 - Find the humanity in the argument
 - Make readers THINK, not just consume
 
-This isn't a summary. This is a story about ideas in combat.`
-            });
+This isn't a summary. This is a story about ideas in combat.`,
+      });
 
-            console.log(`✅ Synthesis generated`);
-            console.log(`   Winner narrative: "${result.output.winner.why.substring(0, 80)}..."`);
+      console.log(`✅ Synthesis generated`);
+      console.log(`   Winner narrative: "${result.output.winner.why.substring(0, 80)}..."`);
 
-            return result.output;
-        });
+      return result.output;
+    });
 
-        // Generate highlights for sharing
-        const highlights = await step.run("generate-highlights", async () => {
-            const controversyMoments = debateData.controversyMoments || [];
-            const topControversies = rankControversyMoments(controversyMoments).slice(0, 5);
+    // Generate highlights for sharing
+    const highlights = await step.run("generate-highlights", async () => {
+      const controversyMoments = debateData.controversyMoments || [];
+      const topControversies = rankControversyMoments(controversyMoments).slice(0, 5);
 
-            // Extract best quotes from key moments
-            const bestMoments = topControversies.map((moment: any) => ({
-                text: moment.clip,
-                agent: moment.agent,
-                phase: "debate",
-                type: moment.type
-            }));
+      // Extract best quotes from key moments
+      const bestMoments = topControversies.map((moment: any) => ({
+        text: moment.clip,
+        agent: moment.agent,
+        phase: "debate",
+        type: moment.type,
+      }));
 
-            // Extract top quotes from arguments
-            const allArguments = [
-                ...(debateData.phases.openingStatements?.proStatement?.argument?.keyMoments || []),
-                ...(debateData.phases.openingStatements?.conStatement?.argument?.keyMoments || [])
-            ];
+      // Extract top quotes from arguments
+      const allArguments = [
+        ...(debateData.phases.openingStatements?.proStatement?.argument?.keyMoments || []),
+        ...(debateData.phases.openingStatements?.conStatement?.argument?.keyMoments || []),
+      ];
 
-            const topQuotes = allArguments
-                .filter((m: any) => m.type === 'zinger' || m.type === 'rhetorical_climax')
-                .slice(0, 3)
-                .map((m: any) => ({
-                    text: m.text,
-                    agent: "Agent", // Would need to track this better
-                    context: "Opening statement"
-                }));
+      const topQuotes = allArguments
+        .filter((m: any) => m.type === "zinger" || m.type === "rhetorical_climax")
+        .slice(0, 3)
+        .map((m: any) => ({
+          text: m.text,
+          agent: "Agent", // Would need to track this better
+          context: "Opening statement",
+        }));
 
-            // Create shareable cards
-            const shareableCards = [
-                {
-                    type: 'winner_card',
-                    content: {
-                        winner: synthesis.winner.who,
-                        score: `${finalScore.pro} - ${finalScore.con}`,
-                        defining_moment: synthesis.winner.defining_moment
-                    }
-                },
-                {
-                    type: 'best_argument',
-                    content: {
-                        side: 'Pro',
-                        argument: synthesis.bestArguments.pro.argument,
-                        quote: synthesis.bestArguments.pro.quote
-                    }
-                },
-                {
-                    type: 'best_argument',
-                    content: {
-                        side: 'Con',
-                        argument: synthesis.bestArguments.con.argument,
-                        quote: synthesis.bestArguments.con.quote
-                    }
-                }
-            ];
+      // Create shareable cards
+      const shareableCards = [
+        {
+          type: "winner_card",
+          content: {
+            winner: synthesis.winner.who,
+            score: `${finalScore.pro} - ${finalScore.con}`,
+            defining_moment: synthesis.winner.defining_moment,
+          },
+        },
+        {
+          type: "best_argument",
+          content: {
+            side: "Pro",
+            argument: synthesis.bestArguments.pro.argument,
+            quote: synthesis.bestArguments.pro.quote,
+          },
+        },
+        {
+          type: "best_argument",
+          content: {
+            side: "Con",
+            argument: synthesis.bestArguments.con.argument,
+            quote: synthesis.bestArguments.con.quote,
+          },
+        },
+      ];
 
-            return {
-                bestMoments,
-                topQuotes,
-                controversies: topControversies,
-                shareableCards
-            };
-        });
+      return {
+        bestMoments,
+        topQuotes,
+        controversies: topControversies,
+        shareableCards,
+      };
+    });
 
-        // Store synthesis and highlights
-        await step.run("store-synthesis", async () => {
-            enhancedDebateStore.setSynthesis(debateId, synthesis);
-            enhancedDebateStore.setHighlights(debateId, highlights);
+    // Store synthesis and highlights
+    await step.run("store-synthesis", async () => {
+      enhancedDebateStore.setSynthesis(debateId, synthesis);
+      enhancedDebateStore.setHighlights(debateId, highlights);
 
-            enhancedDebateStore.updatePhase(debateId, 'synthesis', 'Complete', 1.0);
-        });
+      enhancedDebateStore.updatePhase(debateId, "synthesis", "Complete", 1.0);
+    });
 
-        // Emit completion
-        await step.run("emit-completion", async () => {
-            await inngest.send({
-                name: "synthesis/complete",
-                data: { debateId }
-            });
+    // Emit completion
+    await step.run("emit-completion", async () => {
+      await inngest.send({
+        name: "synthesis/complete",
+        data: { debateId },
+      });
 
-            console.log(`✅ Synthesis complete!`);
-            console.log(`\n${'═'.repeat(60)}`);
-            console.log(`NARRATIVE OPENING:`);
-            console.log(`"${synthesis.narrative.opening}"`);
-            console.log(`${'═'.repeat(60)}\n`);
-        });
+      console.log(`✅ Synthesis complete!`);
+      console.log(`\n${"═".repeat(60)}`);
+      console.log(`NARRATIVE OPENING:`);
+      console.log(`"${synthesis.narrative.opening}"`);
+      console.log(`${"═".repeat(60)}\n`);
+    });
 
-        return {
-            synthesis,
-            highlights
-        };
-    }
+    return {
+      synthesis,
+      highlights,
+    };
+  },
 );

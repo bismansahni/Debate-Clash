@@ -1,4 +1,3 @@
-// components/arena/AudienceQuestionScene.tsx
 "use client";
 
 import { motion } from "framer-motion";
@@ -32,40 +31,69 @@ interface AudienceQuestionSceneProps {
   conAgent?: string;
 }
 
+function getInitials(name: string): string {
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+}
+
 export function AudienceQuestionScene({
   questions = [],
   proResponses = [],
   conResponses = [],
   proAgent = "Pro",
-  conAgent = "Con"
+  conAgent = "Con",
 }: AudienceQuestionSceneProps) {
   const [selectedQuestion, setSelectedQuestion] = useState(0);
 
   if (questions.length === 0) {
     return (
-      <div className="text-center py-8 sm:py-12 text-gray-500">
-        <p className="text-sm sm:text-base">Audience questions loading...</p>
+      <div className="flex flex-col items-center justify-center py-10 sm:py-16">
+        <div className="flex gap-1.5 mb-4">
+          <div className="w-1.5 h-1.5 rounded-full bg-[var(--pro)] animate-pulse" />
+          <div className="w-1.5 h-1.5 rounded-full bg-[var(--arena-text-muted)] animate-pulse delay-75" />
+          <div className="w-1.5 h-1.5 rounded-full bg-[var(--con)] animate-pulse delay-150" />
+        </div>
+        <p className="font-[family-name:var(--font-jetbrains)] text-xs text-[var(--arena-text-dim)] uppercase tracking-widest">
+          Audience questions loading...
+        </p>
       </div>
     );
   }
 
   const currentQuestion = questions[selectedQuestion];
+  if (!currentQuestion) return null;
   const proAnswer = proResponses[selectedQuestion];
   const conAnswer = conResponses[selectedQuestion];
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6 sm:space-y-8">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4 sm:space-y-6">
+      {/* Header + selector */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         <div>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-1 sm:mb-2">👥 Audience Questions</h2>
-          <p className="text-xs sm:text-sm text-gray-400">Real people, real concerns</p>
+          <div className="font-[family-name:var(--font-jetbrains)] text-[0.6rem] uppercase tracking-[0.3em] text-[var(--arena-text-dim)] mb-2">
+            Phase 04
+          </div>
+          <h2 className="font-[family-name:var(--font-chakra)] font-bold text-xl sm:text-2xl lg:text-3xl text-[var(--arena-text)]">
+            Audience Questions
+          </h2>
         </div>
         <div className="flex items-center gap-2">
           {questions.map((_, idx) => (
             <button
               key={idx}
               onClick={() => setSelectedQuestion(idx)}
-              className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full text-xs sm:text-sm font-bold transition-all ${selectedQuestion === idx ? 'bg-white text-black scale-110' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}
+              className={`w-8 h-8 flex items-center justify-center
+                         font-[family-name:var(--font-jetbrains)] text-xs font-bold
+                         border transition-all duration-300
+                ${
+                  selectedQuestion === idx
+                    ? "text-[var(--arena-text)] border-[var(--arena-border-active)] bg-[var(--arena-surface-hover)]"
+                    : "text-[var(--arena-text-dim)] border-[var(--arena-border)] hover:text-[var(--arena-text-muted)]"
+                }`}
             >
               {idx + 1}
             </button>
@@ -73,58 +101,101 @@ export function AudienceQuestionScene({
         </div>
       </div>
 
+      {/* Question Card — audience persona stays (not a debater) */}
       <motion.div
         key={selectedQuestion}
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-10"
+        className="arena-panel glow-gold p-4 sm:p-5 lg:p-6"
       >
-        <div className="flex items-start gap-3 sm:gap-4 mb-4 sm:mb-6">
-          <div className="flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-white text-lg sm:text-2xl font-bold shadow-lg">
-            {currentQuestion.persona.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+        <div className="flex items-start gap-3 mb-4">
+          <div
+            className="flex-shrink-0 w-10 h-10 rounded-sm flex items-center justify-center border
+                       font-[family-name:var(--font-chakra)] font-bold text-xs"
+            style={{
+              borderColor: "var(--gold)",
+              background: "var(--gold-dim)",
+              color: "var(--gold)",
+            }}
+          >
+            {getInitials(currentQuestion.persona.name)}
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="text-base sm:text-lg font-bold mb-1">
-              {currentQuestion.persona.name}
-              {currentQuestion.persona.age && <span className="text-gray-500 font-normal ml-2">{currentQuestion.persona.age}</span>}
-            </h3>
-            <p className="text-xs sm:text-sm text-gray-400">{currentQuestion.persona.perspective}</p>
+            <div className="flex items-center gap-2">
+              <span className="font-[family-name:var(--font-chakra)] font-semibold text-sm text-[var(--gold)]">
+                {currentQuestion.persona.name}
+              </span>
+              {currentQuestion.persona.age && (
+                <span className="font-[family-name:var(--font-jetbrains)] text-[0.55rem] text-[var(--arena-text-dim)]">
+                  {currentQuestion.persona.age}
+                </span>
+              )}
+            </div>
+            <div className="font-[family-name:var(--font-jetbrains)] text-[0.55rem] text-[var(--arena-text-dim)] uppercase tracking-wider">
+              {currentQuestion.persona.perspective}
+            </div>
           </div>
         </div>
-        <div className="mb-4 sm:mb-6">
-          <p className="text-lg sm:text-xl lg:text-2xl text-white leading-relaxed">"{currentQuestion.question}"</p>
-        </div>
+
+        <p className="font-[family-name:var(--font-source-serif)] text-base sm:text-lg lg:text-xl text-[var(--arena-text)] leading-relaxed italic">
+          &ldquo;{currentQuestion.question}&rdquo;
+        </p>
+
+        {currentQuestion.forces_specificity && (
+          <div className="mt-3">
+            <span
+              className="px-2 py-0.5 text-[0.55rem] font-[family-name:var(--font-jetbrains)] uppercase tracking-wider border"
+              style={{
+                borderColor: "var(--con)",
+                color: "var(--con)",
+                background: "var(--con-dim)",
+              }}
+            >
+              Forces Specificity
+            </span>
+          </div>
+        )}
       </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-        {proAnswer && <ResponseCard agent={proAgent} answer={proAnswer.answer} side="pro" />}
-        {conAnswer && <ResponseCard agent={conAgent} answer={conAnswer.answer} side="con" />}
-      </div>
-    </motion.div>
-  );
-}
+      {/* Responses — simplified, no avatar headers (courtroom shows identity) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {proAnswer && (
+          <motion.div
+            initial={{ opacity: 0, x: -15 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1 }}
+            className="arena-panel glow-pro overflow-hidden"
+          >
+            <div className="h-[0.125rem] w-full" style={{ background: "var(--pro)" }} />
+            <div className="p-4 sm:p-5">
+              <div className="font-[family-name:var(--font-jetbrains)] text-[0.55rem] uppercase tracking-wider mb-2 text-[var(--pro)]">
+                {proAgent}
+              </div>
+              <p className="font-[family-name:var(--font-source-serif)] text-sm text-[var(--arena-text-muted)] leading-relaxed">
+                {proAnswer.answer}
+              </p>
+            </div>
+          </motion.div>
+        )}
 
-interface ResponseCardProps {
-  agent: string;
-  answer: string;
-  side: 'pro' | 'con';
-}
-
-function ResponseCard({ agent, answer, side }: ResponseCardProps) {
-  const gradientClass = side === 'pro' ? 'from-blue-500 to-cyan-500' : 'from-purple-500 to-pink-500';
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: side === 'pro' ? 0.1 : 0.2 }}
-      className="bg-gray-900 border border-gray-800 rounded-xl sm:rounded-2xl overflow-hidden"
-    >
-      <div className={`bg-gradient-to-r ${gradientClass} p-3 sm:p-4`}>
-        <h4 className="text-sm sm:text-base font-bold text-white">{agent}'s Answer</h4>
-      </div>
-      <div className="p-4 sm:p-6">
-        <p className="text-sm sm:text-base text-gray-300 leading-relaxed">{answer}</p>
+        {conAnswer && (
+          <motion.div
+            initial={{ opacity: 0, x: 15 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+            className="arena-panel glow-con overflow-hidden"
+          >
+            <div className="h-[0.125rem] w-full" style={{ background: "var(--con)" }} />
+            <div className="p-4 sm:p-5">
+              <div className="font-[family-name:var(--font-jetbrains)] text-[0.55rem] uppercase tracking-wider mb-2 text-[var(--con)]">
+                {conAgent}
+              </div>
+              <p className="font-[family-name:var(--font-source-serif)] text-sm text-[var(--arena-text-muted)] leading-relaxed">
+                {conAnswer.answer}
+              </p>
+            </div>
+          </motion.div>
+        )}
       </div>
     </motion.div>
   );

@@ -1,161 +1,206 @@
-// components/arena/CrossExamScene.tsx
 "use client";
 
 import { motion } from "framer-motion";
 import { useState } from "react";
-import { CrossExamRound, Agent } from "@/types/debate";
 import { TypewriterText } from "@/components/ui/TypewriterText";
+import type { CrossExamRound } from "@/types/debate";
 
 interface CrossExamSceneProps {
   round1?: CrossExamRound;
   round2?: CrossExamRound;
-  proAgent?: Agent;
-  conAgent?: Agent;
+  proAgent?: string;
+  conAgent?: string;
 }
 
-export function CrossExamScene({
-  round1,
-  round2,
-  proAgent,
-  conAgent
-}: CrossExamSceneProps) {
+export function CrossExamScene({ round1, round2, proAgent = "Pro", conAgent = "Con" }: CrossExamSceneProps) {
   const [selectedRound, setSelectedRound] = useState<1 | 2>(1);
   const currentRound = selectedRound === 1 ? round1 : round2;
 
   if (!currentRound) {
     return (
-      <div className="text-center py-8 sm:py-12 text-gray-500">
-        <p className="text-sm sm:text-base">Cross-examination in progress...</p>
+      <div className="flex flex-col items-center justify-center py-10 sm:py-16">
+        <div className="flex gap-1.5 mb-4">
+          <div className="w-1.5 h-1.5 rounded-full bg-[var(--pro)] animate-pulse" />
+          <div className="w-1.5 h-1.5 rounded-full bg-[var(--arena-text-muted)] animate-pulse delay-75" />
+          <div className="w-1.5 h-1.5 rounded-full bg-[var(--con)] animate-pulse delay-150" />
+        </div>
+        <p className="font-[family-name:var(--font-jetbrains)] text-xs text-[var(--arena-text-dim)] uppercase tracking-widest">
+          Cross-examination in progress...
+        </p>
       </div>
     );
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="space-y-4 sm:space-y-6"
-    >
-      {/* Round Selector */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold">
-          ⚔️ Cross-Examination
-        </h2>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+      {/* Header + Round selector */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <div className="font-[family-name:var(--font-jetbrains)] text-[0.6rem] uppercase tracking-[0.3em] text-[var(--arena-text-dim)] mb-2">
+            Phase 02
+          </div>
+          <h2 className="font-[family-name:var(--font-chakra)] font-bold text-2xl sm:text-3xl text-[var(--arena-text)]">
+            Cross-Examination
+          </h2>
+        </div>
 
         <div className="flex gap-2">
           <button
             onClick={() => setSelectedRound(1)}
-            className={`
-              px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold
-              transition-all
-              ${selectedRound === 1
-                ? 'bg-white text-black'
-                : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
-              }
-            `}
+            className={`px-4 py-2 font-[family-name:var(--font-jetbrains)] text-xs uppercase tracking-wider
+              transition-all duration-300 border
+              ${
+                selectedRound === 1
+                  ? "text-[var(--arena-text)] border-[var(--arena-border-active)] bg-[var(--arena-surface-hover)]"
+                  : "text-[var(--arena-text-dim)] border-[var(--arena-border)] hover:text-[var(--arena-text-muted)]"
+              }`}
           >
             Round 1
           </button>
           <button
             onClick={() => setSelectedRound(2)}
-            className={`
-              px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold
-              transition-all
-              ${selectedRound === 2
-                ? 'bg-white text-black'
-                : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
-              }
-            `}
             disabled={!round2}
+            className={`px-4 py-2 font-[family-name:var(--font-jetbrains)] text-xs uppercase tracking-wider
+              transition-all duration-300 border disabled:opacity-30 disabled:cursor-not-allowed
+              ${
+                selectedRound === 2
+                  ? "text-[var(--arena-text)] border-[var(--arena-border-active)] bg-[var(--arena-surface-hover)]"
+                  : "text-[var(--arena-text-dim)] border-[var(--arena-border)] hover:text-[var(--arena-text-muted)]"
+              }`}
           >
             Round 2
           </button>
         </div>
       </div>
 
-      {/* Q&A Exchanges */}
-      <div className="space-y-4 sm:space-y-6">
+      {/* Q&A Exchanges - Rally format */}
+      <div className="space-y-4">
         {currentRound.questions.map((question, idx) => {
           const answer = currentRound.answers[idx];
+          if (!answer) return null;
 
           return (
-            <div
+            <motion.div
               key={idx}
-              className="bg-gray-900 border border-gray-800 rounded-xl sm:rounded-2xl overflow-hidden"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.1 }}
+              className="arena-panel overflow-hidden"
             >
               {/* Question */}
-              <div className="p-4 sm:p-6 lg:p-8 bg-gray-800/30">
-                <div className="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4">
-                  <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full
-                                bg-gradient-to-br from-blue-500 to-cyan-500
-                                flex items-center justify-center text-white text-xs sm:text-sm font-bold">
+              <div
+                className="p-4 sm:p-5 border-b border-[var(--arena-border)]"
+                style={{ background: "rgba(0, 240, 255, 0.02)" }}
+              >
+                <div className="flex items-start gap-3">
+                  <div
+                    className="flex-shrink-0 w-7 h-7 rounded-sm flex items-center justify-center border
+                               font-[family-name:var(--font-jetbrains)] text-[0.55rem] font-bold"
+                    style={{
+                      borderColor: "var(--pro)",
+                      color: "var(--pro)",
+                      background: "var(--pro-dim)",
+                    }}
+                  >
                     Q{idx + 1}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-xs sm:text-sm text-gray-400 mb-1 sm:mb-2">
+                    <div className="font-[family-name:var(--font-jetbrains)] text-[0.55rem] text-[var(--arena-text-dim)] uppercase tracking-wider mb-2">
                       {currentRound.questioner} asks:
                     </div>
                     <TypewriterText
                       text={question.question}
-                      className="text-sm sm:text-base lg:text-lg text-white leading-relaxed"
+                      className="font-[family-name:var(--font-source-serif)] text-sm sm:text-base text-[var(--arena-text)] leading-relaxed"
                     />
+                    {/* Meta tags */}
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      <span
+                        className="px-2 py-0.5 text-[0.55rem] font-[family-name:var(--font-jetbrains)] uppercase tracking-wider border"
+                        style={{
+                          borderColor: "var(--con)",
+                          color: "var(--con)",
+                          background: "var(--con-dim)",
+                        }}
+                      >
+                        {question.intent}
+                      </span>
+                      <span
+                        className="px-2 py-0.5 text-[0.55rem] font-[family-name:var(--font-jetbrains)] uppercase tracking-wider
+                                 text-[var(--arena-text-dim)] border border-[var(--arena-border)]"
+                      >
+                        Target: {question.target_weakness}
+                      </span>
+                    </div>
                   </div>
-                </div>
-
-                {/* Question metadata */}
-                <div className="flex flex-wrap gap-2 mt-3 sm:mt-4">
-                  <span className="px-2 sm:px-3 py-1 rounded-full text-[0.625rem] sm:text-xs font-semibold
-                                 bg-red-500/20 text-red-400 border border-red-500/30">
-                    {question.intent}
-                  </span>
-                  <span className="px-2 sm:px-3 py-1 rounded-full text-[0.625rem] sm:text-xs
-                                 bg-gray-700/50 text-gray-300">
-                    Target: {question.target_weakness}
-                  </span>
                 </div>
               </div>
 
               {/* Answer */}
-              <div className="p-4 sm:p-6 lg:p-8">
-                <div className="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4">
-                  <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full
-                                bg-gradient-to-br from-purple-500 to-pink-500
-                                flex items-center justify-center text-white text-xs sm:text-sm font-bold">
+              <div className="p-4 sm:p-5">
+                <div className="flex items-start gap-3">
+                  <div
+                    className="flex-shrink-0 w-7 h-7 rounded-sm flex items-center justify-center border
+                               font-[family-name:var(--font-jetbrains)] text-[0.55rem] font-bold"
+                    style={{
+                      borderColor: "var(--con)",
+                      color: "var(--con)",
+                      background: "var(--con-dim)",
+                    }}
+                  >
                     A{idx + 1}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-xs sm:text-sm text-gray-400 mb-1 sm:mb-2">
+                    <div className="font-[family-name:var(--font-jetbrains)] text-[0.55rem] text-[var(--arena-text-dim)] uppercase tracking-wider mb-2">
                       {currentRound.respondent} responds:
                     </div>
                     <TypewriterText
                       text={answer.answer}
-                      className="text-sm sm:text-base lg:text-lg text-white leading-relaxed"
+                      className="font-[family-name:var(--font-source-serif)] text-sm sm:text-base text-[var(--arena-text)] leading-relaxed"
                     />
+                    {/* Strategy tags */}
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      <span
+                        className="px-2 py-0.5 text-[0.55rem] font-[family-name:var(--font-jetbrains)] uppercase tracking-wider border"
+                        style={{
+                          borderColor:
+                            answer.strategy === "COUNTER_ATTACK"
+                              ? "#22c55e"
+                              : answer.strategy === "DEFLECTION"
+                                ? "var(--gold)"
+                                : "var(--pro)",
+                          color:
+                            answer.strategy === "COUNTER_ATTACK"
+                              ? "#22c55e"
+                              : answer.strategy === "DEFLECTION"
+                                ? "var(--gold)"
+                                : "var(--pro)",
+                          background:
+                            answer.strategy === "COUNTER_ATTACK"
+                              ? "rgba(34, 197, 94, 0.12)"
+                              : answer.strategy === "DEFLECTION"
+                                ? "var(--gold-dim)"
+                                : "var(--pro-dim)",
+                        }}
+                      >
+                        {answer.strategy}
+                      </span>
+                      {answer.evasion && (
+                        <span
+                          className="px-2 py-0.5 text-[0.55rem] font-[family-name:var(--font-jetbrains)] uppercase tracking-wider border"
+                          style={{
+                            borderColor: "var(--con)",
+                            color: "var(--con)",
+                            background: "var(--con-dim)",
+                          }}
+                        >
+                          EVASION
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
-
-                {/* Answer metadata */}
-                <div className="flex flex-wrap gap-2 mt-3 sm:mt-4">
-                  <span className={`
-                    px-2 sm:px-3 py-1 rounded-full text-[0.625rem] sm:text-xs font-semibold
-                    ${answer.strategy === 'COUNTER_ATTACK'
-                      ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-                      : answer.strategy === 'DEFLECTION'
-                      ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
-                      : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                    }
-                  `}>
-                    {answer.strategy}
-                  </span>
-                  {answer.evasion && (
-                    <span className="px-2 sm:px-3 py-1 rounded-full text-[0.625rem] sm:text-xs font-semibold
-                                   bg-red-500/20 text-red-400 border border-red-500/30">
-                      ⚠️ EVASION
-                    </span>
-                  )}
-                </div>
               </div>
-            </div>
+            </motion.div>
           );
         })}
       </div>
@@ -163,59 +208,53 @@ export function CrossExamScene({
       {/* Round Analysis */}
       {currentRound.analysis && (
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700
-                   rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8"
+          className="arena-panel p-5 sm:p-6"
         >
-          <h3 className="text-base sm:text-lg font-bold mb-3 sm:mb-4">
-            📊 Round Analysis
-          </h3>
+          <div className="font-[family-name:var(--font-jetbrains)] text-[0.6rem] uppercase tracking-[0.2em] text-[var(--arena-text-dim)] mb-4">
+            Round Analysis
+          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6">
-            {/* Directness Score */}
-            <div>
-              <div className="text-xs sm:text-sm text-gray-400 mb-1.5 sm:mb-2">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-5">
+            <div className="text-center">
+              <div className="font-[family-name:var(--font-jetbrains)] text-[0.5rem] uppercase tracking-wider text-[var(--arena-text-dim)] mb-1">
                 Directness
               </div>
-              <div className="text-2xl sm:text-3xl lg:text-4xl font-mono font-light">
-                {currentRound.analysis.directness_score}/10
+              <div className="font-[family-name:var(--font-jetbrains)] text-2xl font-light text-[var(--arena-text)]">
+                {currentRound.analysis.directness_score}
+                <span className="text-[var(--arena-text-dim)] text-sm">/10</span>
               </div>
             </div>
-
-            {/* Concessions */}
-            <div>
-              <div className="text-xs sm:text-sm text-gray-400 mb-1.5 sm:mb-2">
+            <div className="text-center">
+              <div className="font-[family-name:var(--font-jetbrains)] text-[0.5rem] uppercase tracking-wider text-[var(--arena-text-dim)] mb-1">
                 Concessions
               </div>
-              <div className="text-2xl sm:text-3xl lg:text-4xl font-mono font-light">
+              <div className="font-[family-name:var(--font-jetbrains)] text-2xl font-light text-[var(--arena-text)]">
                 {currentRound.analysis.concessions_made.length}
               </div>
             </div>
-
-            {/* Winner */}
-            <div className="sm:col-span-2 lg:col-span-1">
-              <div className="text-xs sm:text-sm text-gray-400 mb-1.5 sm:mb-2">
+            <div className="text-center">
+              <div className="font-[family-name:var(--font-jetbrains)] text-[0.5rem] uppercase tracking-wider text-[var(--arena-text-dim)] mb-1">
                 Round Winner
               </div>
-              <div className="text-base sm:text-lg lg:text-xl font-bold text-green-400">
-                {currentRound.analysis.winner === 'questioner'
+              <div className="font-[family-name:var(--font-chakra)] font-semibold text-sm text-[#22c55e]">
+                {currentRound.analysis.winner === "questioner"
                   ? currentRound.questioner
-                  : currentRound.analysis.winner === 'respondent'
-                  ? currentRound.respondent
-                  : 'Tie'}
+                  : currentRound.analysis.winner === "respondent"
+                    ? currentRound.respondent
+                    : "Tie"}
               </div>
             </div>
           </div>
 
-          {/* Key Exchange */}
           {currentRound.analysis.key_exchange && (
-            <div className="pt-3 sm:pt-4 border-t border-gray-700">
-              <div className="text-xs sm:text-sm text-gray-400 mb-2">
-                🔥 Key Exchange
+            <div className="pt-4 border-t border-[var(--arena-border)]">
+              <div className="font-[family-name:var(--font-jetbrains)] text-[0.55rem] uppercase tracking-wider text-[var(--gold)] mb-2">
+                Key Exchange
               </div>
-              <p className="text-xs sm:text-sm lg:text-base text-gray-300 leading-relaxed">
+              <p className="font-[family-name:var(--font-source-serif)] text-sm text-[var(--arena-text-muted)] leading-relaxed">
                 {currentRound.analysis.key_exchange}
               </p>
             </div>

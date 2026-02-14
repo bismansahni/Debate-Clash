@@ -1,99 +1,108 @@
-// components/arena/AgentDisplay.tsx
 "use client";
 
 import { motion } from "framer-motion";
-import { Agent } from "@/types/debate";
+import type { Agent } from "@/types/debate";
 
 interface AgentDisplayProps {
   agent: Agent;
-  side: 'pro' | 'con';
+  side: "pro" | "con";
   index: number;
 }
 
-const AGENT_COLORS = [
-  'from-blue-500 to-cyan-500',
-  'from-purple-500 to-pink-500',
-  'from-emerald-500 to-teal-500',
-];
-
 export function AgentDisplay({ agent, side, index }: AgentDisplayProps) {
-  // Generate initials from name
   const initials = agent.persona.name
-    .split(' ')
-    .map(n => n[0])
-    .join('')
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
     .toUpperCase()
     .slice(0, 2);
 
+  const sideColor = side === "pro" ? "var(--pro)" : "var(--con)";
+  const sideDim = side === "pro" ? "var(--pro-dim)" : "var(--con-dim)";
+  const glowClass = side === "pro" ? "glow-pro" : "glow-con";
+  const textGradient = side === "pro" ? "text-gradient-pro" : "text-gradient-con";
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.1 }}
-      className="bg-gray-900 border border-gray-800 rounded-xl sm:rounded-2xl p-4 sm:p-6
-                 hover:border-gray-700 transition-colors"
+      initial={{ opacity: 0, x: side === "pro" ? -30 : 30 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: index * 0.15, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      className={`arena-panel ${glowClass} p-5 sm:p-6 relative overflow-hidden`}
     >
-      {/* Avatar + Name */}
-      <div className="flex items-start gap-3 sm:gap-4 mb-4">
-        {/* Avatar Circle */}
-        <div className={`
-          flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16 rounded-full
-          bg-gradient-to-br ${AGENT_COLORS[index % AGENT_COLORS.length]}
-          flex items-center justify-center text-white
-          text-base sm:text-xl font-bold shadow-lg
-        `}>
+      {/* Side indicator bar */}
+      <div className="absolute top-0 left-0 w-full h-0.5" style={{ background: sideColor }} />
+
+      {/* Header: Avatar + Name */}
+      <div className="flex items-start gap-4 mb-5">
+        {/* Avatar */}
+        <div
+          className="flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-sm
+                     flex items-center justify-center
+                     font-[family-name:var(--font-chakra)] font-bold
+                     text-lg sm:text-xl border"
+          style={{
+            background: sideDim,
+            borderColor: sideColor,
+            color: sideColor,
+          }}
+        >
           {initials}
         </div>
 
         <div className="flex-1 min-w-0">
-          <h3 className="text-base sm:text-lg lg:text-xl font-bold mb-1 truncate">
-            {agent.persona.name}
-          </h3>
-          <p className="text-xs sm:text-sm text-gray-400 line-clamp-2">
+          <div className="flex items-center gap-2 mb-1">
+            <h3
+              className={`font-[family-name:var(--font-chakra)] font-bold text-lg sm:text-xl ${textGradient} truncate`}
+            >
+              {agent.persona.name}
+            </h3>
+          </div>
+          <div
+            className="font-[family-name:var(--font-jetbrains)] text-[0.6rem] uppercase tracking-[0.2em] mb-2"
+            style={{ color: sideColor }}
+          >
+            {side === "pro" ? "PRO" : "CON"} AGENT
+          </div>
+          <p className="font-[family-name:var(--font-source-serif)] text-sm text-[var(--arena-text-muted)] line-clamp-2 italic">
             {agent.stance}
           </p>
         </div>
       </div>
 
       {/* Background */}
-      <div className="mb-4">
-        <p className="text-xs sm:text-sm text-gray-300 line-clamp-3 leading-relaxed">
-          {agent.persona.background}
-        </p>
-      </div>
+      <p className="font-[family-name:var(--font-source-serif)] text-sm text-[var(--arena-text-muted)] leading-relaxed mb-5 line-clamp-3">
+        {agent.persona.background}
+      </p>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-2 gap-2 sm:gap-3">
-        {/* Speaking Style */}
-        <div className="bg-gray-800/50 rounded-lg p-2 sm:p-3">
-          <div className="text-[0.625rem] sm:text-xs text-gray-500 uppercase tracking-wide mb-1">
+      {/* Stats */}
+      <div className="grid grid-cols-2 gap-2">
+        <div className="arena-panel p-3">
+          <div className="font-[family-name:var(--font-jetbrains)] text-[0.55rem] uppercase tracking-wider text-[var(--arena-text-dim)] mb-1">
             Style
           </div>
-          <div className="text-xs sm:text-sm font-medium truncate">
-            {agent.persona.traits.speaking_style.split(',')[0]}
+          <div className="font-[family-name:var(--font-chakra)] text-xs font-medium text-[var(--arena-text)] truncate">
+            {agent.persona.traits.speaking_style.split(",")[0]}
           </div>
         </div>
-
-        {/* Rhetoric */}
-        <div className="bg-gray-800/50 rounded-lg p-2 sm:p-3">
-          <div className="text-[0.625rem] sm:text-xs text-gray-500 uppercase tracking-wide mb-1">
+        <div className="arena-panel p-3">
+          <div className="font-[family-name:var(--font-jetbrains)] text-[0.55rem] uppercase tracking-wider text-[var(--arena-text-dim)] mb-1">
             Rhetoric
           </div>
-          <div className="text-xs sm:text-sm font-medium truncate">
-            {agent.persona.traits.rhetoric_preference.split(',')[0]}
+          <div className="font-[family-name:var(--font-chakra)] text-xs font-medium text-[var(--arena-text)] truncate">
+            {agent.persona.traits.rhetoric_preference.split(",")[0]}
           </div>
         </div>
       </div>
 
-      {/* Signature Move */}
+      {/* Catchphrase */}
       {agent.persona.traits.catchphrases && agent.persona.traits.catchphrases.length > 0 && (
-        <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-800">
-          <div className="text-[0.625rem] sm:text-xs text-gray-500 uppercase tracking-wide mb-1.5">
+        <div className="mt-4 pt-4 border-t border-[var(--arena-border)]">
+          <div className="font-[family-name:var(--font-jetbrains)] text-[0.55rem] uppercase tracking-wider text-[var(--arena-text-dim)] mb-1.5">
             Signature
           </div>
-          <div className="text-xs sm:text-sm text-gray-300 italic">
-            "{agent.persona.traits.catchphrases[0]}"
-          </div>
+          <p className="font-[family-name:var(--font-source-serif)] text-sm text-[var(--arena-text-muted)] italic">
+            &ldquo;{agent.persona.traits.catchphrases[0]}&rdquo;
+          </p>
         </div>
       )}
     </motion.div>

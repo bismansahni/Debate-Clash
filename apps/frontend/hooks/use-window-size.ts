@@ -1,5 +1,5 @@
 // hooks/use-window-size.ts
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export function useWindowSize() {
   const [windowSize, setWindowSize] = useState({

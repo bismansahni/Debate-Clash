@@ -6,31 +6,31 @@ import { inngest } from "../inngest/client.ts";
  * Body: { topic: string }
  */
 export async function triggerEnhancedDebate(topic: string): Promise<{
-    success: boolean;
-    debateId?: string;
-    message: string;
+  success: boolean;
+  debateId?: string;
+  message: string;
 }> {
-    try {
-        const result = await inngest.send({
-            name: "debate/initiate-enhanced",
-            data: { topic }
-        });
+  try {
+    const result = await inngest.send({
+      name: "debate/initiate-enhanced",
+      data: { topic },
+    });
 
-        // Extract debate ID from event (will be in orchestrator response)
-        const debateId = `debate-${result.ids[0]}`;
+    // Extract debate ID from event (will be in orchestrator response)
+    const debateId = `debate-${result.ids[0]}`;
 
-        return {
-            success: true,
-            debateId,
-            message: "Enhanced debate initiated successfully!"
-        };
-    } catch (error) {
-        console.error("Failed to trigger enhanced debate:", error);
-        return {
-            success: false,
-            message: error instanceof Error ? error.message : "Unknown error"
-        };
-    }
+    return {
+      success: true,
+      debateId,
+      message: "Enhanced debate initiated successfully!",
+    };
+  } catch (error) {
+    console.error("Failed to trigger enhanced debate:", error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
 }
 
 /**
