@@ -3,7 +3,7 @@
  * Supports all new phases: cross-exam, audience Q&A, lightning round, etc.
  */
 
-import {
+import type {
     MomentumState,
     ControversyMoment,
     LiveFactCheck,
@@ -32,7 +32,7 @@ export type DebatePhase =
 
 export interface CurrentPhase {
     type: DebatePhase;
-    subPhase?: string;
+    subPhase?: string | undefined;
     progress: number; // 0-1
 }
 
@@ -98,15 +98,15 @@ export interface DeliberationPhase {
 }
 
 export interface VerdictPhase {
-    logicScore?: EnhancedJudgment;
-    evidenceScore?: EnhancedJudgment;
-    rhetoricScore?: EnhancedJudgment;
+    logicScore?: EnhancedJudgment | undefined;
+    evidenceScore?: EnhancedJudgment | undefined;
+    rhetoricScore?: EnhancedJudgment | undefined;
     finalScore?: {
         pro: number;
         con: number;
         winner: string;
         margin: number;
-    };
+    } | undefined;
 }
 
 export interface Highlight {

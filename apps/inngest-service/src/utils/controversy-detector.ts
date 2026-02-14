@@ -3,7 +3,7 @@
  * Identifies memorable, shareable, and impactful moments in debates
  */
 
-import { ControversyMoment } from "../schemas/enhanced-types.ts";
+import type { ControversyMoment } from "../schemas/enhanced-types.ts";
 
 export function detectControversyMoments(exchange: any, agent: string): ControversyMoment[] {
     const moments: ControversyMoment[] = [];

@@ -28,7 +28,7 @@ export const enhancedJudgeVerdictFunction = inngest.createFunction(
 
         // Reveal scores one judge at a time (SUSPENSE!)
         for (let i = 0; i < judgeTypes.length; i++) {
-            const judgeType = judgeTypes[i];
+            const judgeType = judgeTypes[i]!; // Safe: i is always within bounds
             const persona = JUDGE_PERSONAS[judgeType];
 
             await step.run(`score-reveal-${judgeType}`, async () => {

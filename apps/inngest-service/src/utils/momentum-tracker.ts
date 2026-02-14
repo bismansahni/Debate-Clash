@@ -3,7 +3,7 @@
  * Calculates debate momentum shifts based on various factors
  */
 
-import { MomentumEvent } from "../schemas/enhanced-types.ts";
+import type { MomentumEvent } from "../schemas/enhanced-types.ts";
 
 export interface MomentumFactors {
     logical_strength: number;     // -10 to +10
