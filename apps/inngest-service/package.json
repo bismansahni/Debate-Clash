@@ -1,0 +1,34 @@
+{
+  "name": "inngest-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch index.ts",
+    "start": "tsx index.ts",
+    "build": "tsc --noEmit",
+    "type-check": "tsc --noEmit --skipLibCheck",
+    "test": "tsx test-enhanced-debate.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@ai-sdk/google": "^3.0.24",
+    "@ai-sdk/vercel": "^2.0.30",
+    "@types/cors": "^2.8.19",
+    "ai": "^6.0.79",
+    "cors": "^2.8.6",
+    "dotenv": "^17.2.4",
+    "express": "^5.2.1",
+    "inngest": "^3.52.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^25.2.3",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}
