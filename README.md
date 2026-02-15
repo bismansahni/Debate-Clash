@@ -1,217 +1,39 @@
-# 🎯 AI Debate Arena - Monorepo
+# AI Debate Arena
 
-A scalable monorepo for the AI Debate Arena platform, powered by Turborepo and pnpm workspaces.
+Drop any topic. AI agents argue every side. AI judges score them. You get the verdict.
 
-## 📦 Project Structure
+I built this as a fun project to learn Inngest and its orchestration system — coordinating multiple AI agents across a multi-phase workflow turned out to be a great way to explore what Inngest can do.
 
-```
-inngest-learning/
-├── apps/
-│   ├── frontend/          # Next.js frontend (Debate UI)
-│   └── inngest-service/   # Inngest backend (AI agents, workflows)
-├── packages/
-│   ├── shared-types/      # Shared TypeScript types
-│   └── tsconfig/          # Shared TypeScript configs
-├── turbo.json             # Turborepo configuration
-├── pnpm-workspace.yaml    # pnpm workspace config
-└── package.json           # Root package.json
-```
+## How It Works
 
-## 🚀 Quick Start
+1. You submit a topic — anything from "should college be free" to "is remote work better"
+2. The system analyzes the topic and creates AI debaters with distinct personalities, backgrounds, and arguing styles — could be two agents, could be more depending on the topic's complexity
+3. They go through a full structured debate: opening statements, cross-examination, rebuttals, audience questions, lightning round, and closing statements
+4. Three AI judges (logic, evidence, rhetoric) deliberate and score each agent
+5. A winner is declared
 
-### Install Dependencies
+## What Makes It Interesting
 
-```bash
-pnpm install
-```
+- The debaters aren't generic — they get names, backstories, catchphrases, and weaknesses. They quote each other, make concessions, and land zingers.
+- Cross-examination forces real engagement — pointed questions, strategic evasions, counter-attacks.
+- Lightning round strips away the fluff — binary choices, forced commitments, no hedging allowed.
+- Judges have distinct personalities and judging philosophies. They disagree with each other.
+- Momentum shifts in real time as the debate progresses.
 
-### Development
+## The Debate Phases
 
-Run all apps in development mode:
+**Pre-Show** — Context, stakes, and odds before the debate starts.
 
-```bash
-pnpm dev
-```
+**Opening Statements** — Each agent presents their full case.
 
-Or run specific apps:
+**Cross-Examination** — Two rounds. Each agent gets to grill the other with pointed questions.
 
-```bash
-# Frontend only
-pnpm --filter debator dev
+**Rebuttals** — Direct responses to the opponent's arguments. Must quote and engage, not dodge.
 
-# Backend only
-pnpm --filter inngest-service dev
-```
+**Audience Questions** — AI-generated audience personas ask uncomfortable questions from different perspectives.
 
-### Build
+**Lightning Round** — Rapid-fire questions that force binary answers. No "it depends."
 
-Build all apps:
+**Closing Statements** — Final pitch. No new evidence. Pure persuasion.
 
-```bash
-pnpm build
-```
-
-Build specific apps:
-
-```bash
-# Frontend only
-pnpm --filter debator build
-
-# Backend only
-pnpm --filter inngest-service build
-```
-
-### Type Checking
-
-Check TypeScript across all workspaces:
-
-```bash
-pnpm type-check
-```
-
-### Testing (Inngest Service)
-
-```bash
-# Run all tests
-pnpm --filter inngest-service test
-
-# Run specific tests
-pnpm --filter inngest-service test:simple
-pnpm --filter inngest-service test:complex
-pnpm --filter inngest-service test:bugfix
-```
-
-## 📋 Available Scripts (Root Level)
-
-| Script | Description |
-|--------|-------------|
-| `pnpm build` | Build all apps |
-| `pnpm dev` | Run all apps in dev mode |
-| `pnpm type-check` | Type check all workspaces |
-| `pnpm lint` | Lint all workspaces |
-| `pnpm clean` | Clean all build outputs |
-
-## 🏗️ Apps
-
-### Frontend (`apps/frontend`)
-
-- **Tech Stack**: Next.js 16, React 19, Tailwind CSS
-- **Port**: 3000 (default)
-- **Features**: Debate UI, real-time updates, confetti animations
-
-### Inngest Service (`apps/inngest-service`)
-
-- **Tech Stack**: Express, Inngest, AI SDK (Google Gemini)
-- **Port**: 3000 (default)
-- **Features**: AI debate agents, workflow orchestration, research system
-
-## 📦 Packages
-
-### Shared Types (`packages/shared-types`)
-
-Shared TypeScript types and interfaces used across frontend and backend.
-
-### TypeScript Config (`packages/tsconfig`)
-
-Shared TypeScript configuration for consistent compilation across all apps.
-
-## 🔧 Turborepo Features
-
-- **Parallel Execution**: Run tasks across multiple apps simultaneously
-- **Smart Caching**: Skips rebuilding unchanged packages
-- **Dependency Graph**: Automatically runs tasks in the correct order
-- **Remote Caching**: (Optional) Share build cache across team
-
-## 📝 Environment Variables
-
-Each app manages its own `.env` file:
-
-- `apps/frontend/.env` - Frontend environment variables
-- `apps/inngest-service/.env` - Backend API keys (Google AI, etc.)
-
-**Note**: `.env` files are gitignored for security.
-
-## 🌍 Adding New Apps
-
-1. Create new directory in `apps/`:
-   ```bash
-   mkdir apps/my-new-app
-   ```
-
-2. Add `package.json` with unique name:
-   ```json
-   {
-     "name": "my-new-app",
-     "version": "0.0.1",
-     "scripts": {
-       "dev": "...",
-       "build": "..."
-     }
-   }
-   ```
-
-3. Install dependencies:
-   ```bash
-   pnpm install
-   ```
-
-4. Turborepo will automatically detect it!
-
-## 🎓 Useful Commands
-
-```bash
-# Install package to specific app
-pnpm --filter frontend add react-icons
-
-# Run command in specific app
-pnpm --filter inngest-service dev
-
-# Run command in all apps
-pnpm -r dev
-
-# Update all dependencies
-pnpm up -r
-
-# Check which apps will be affected by changes
-pnpm turbo run build --dry-run
-```
-
-## 📚 Documentation
-
-- [Inngest Service Testing Guide](./apps/inngest-service/TESTING_GUIDE.md)
-- [Debate System Design](./AI_DEBATE_ARENA_DESIGN.md)
-- [Turborepo Docs](https://turbo.build/repo/docs)
-- [pnpm Workspaces](https://pnpm.io/workspaces)
-
-## 🚢 Deployment
-
-### Frontend (Vercel)
-
-```bash
-cd apps/frontend
-vercel deploy
-```
-
-### Backend (Any Node.js host)
-
-```bash
-cd apps/inngest-service
-pnpm build
-pnpm start
-```
-
-## 🤝 Contributing
-
-1. Create a feature branch
-2. Make your changes
-3. Run `pnpm build` to verify everything compiles
-4. Run `pnpm type-check` to verify types
-5. Commit and push
-
-## 📄 License
-
-ISC
-
----
-
-**Built with ❤️ using Turborepo, pnpm, Next.js, and Inngest**
+**Judge Deliberation & Verdict** — Three judges score independently. Scores revealed one at a time for suspense.
