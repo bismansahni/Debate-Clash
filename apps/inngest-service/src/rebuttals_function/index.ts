@@ -103,6 +103,12 @@ Also provide the emotional tone of your rebuttal (e.g. "aggressive", "dismissive
         topic: "updates",
         data: { type: "rebuttal", side: "pro", data: proData },
       });
+
+      await publish({
+        channel: `debate:${debateId}`,
+        topic: "updates",
+        data: { type: "momentum", data: enhancedDebateStore.get(debateId)?.momentum },
+      });
     });
 
     // Store + track + publish Con rebuttal
@@ -126,6 +132,12 @@ Also provide the emotional tone of your rebuttal (e.g. "aggressive", "dismissive
         channel: `debate:${debateId}`,
         topic: "updates",
         data: { type: "rebuttal", side: "con", data: conData },
+      });
+
+      await publish({
+        channel: `debate:${debateId}`,
+        topic: "updates",
+        data: { type: "momentum", data: enhancedDebateStore.get(debateId)?.momentum },
       });
     });
 

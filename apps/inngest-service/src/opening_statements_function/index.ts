@@ -96,6 +96,12 @@ Also provide the emotional tone of your statement (e.g. "passionate", "measured"
         topic: "updates",
         data: { type: "opening", side: "pro", data: proData },
       });
+
+      await publish({
+        channel: `debate:${debateId}`,
+        topic: "updates",
+        data: { type: "momentum", data: enhancedDebateStore.get(debateId)?.momentum },
+      });
     });
 
     // Store + track + publish Con
@@ -119,6 +125,12 @@ Also provide the emotional tone of your statement (e.g. "passionate", "measured"
         channel: `debate:${debateId}`,
         topic: "updates",
         data: { type: "opening", side: "con", data: conData },
+      });
+
+      await publish({
+        channel: `debate:${debateId}`,
+        topic: "updates",
+        data: { type: "momentum", data: enhancedDebateStore.get(debateId)?.momentum },
       });
     });
 

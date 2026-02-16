@@ -60,11 +60,11 @@ export interface CrossExamRound {
 }
 
 export interface MomentumEvent {
-  timestamp: Date;
+  timestamp: number;
   phase: string;
-  description: string;
+  trigger: string;
   shift: number;
-  reason: string;
+  description: string;
 }
 
 export interface MomentumScore {
@@ -76,7 +76,7 @@ export interface MomentumData {
   currentScore: MomentumScore;
   history: MomentumEvent[];
   currentLeader: "pro" | "con" | "tied";
-  volatility: "stable" | "volatile";
+  volatility: "stable" | "shifting" | "dramatic";
 }
 
 export interface ControversyMoment {

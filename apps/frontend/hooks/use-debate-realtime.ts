@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useReducer, useState } from "react";
+import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { useInngestSubscription } from "@inngest/realtime/hooks";
 import { fetchRealtimeToken } from "@/app/actions/realtime-token";
 import type { DebateData } from "@/types/debate";
@@ -16,13 +16,13 @@ function debateReducer(state: DebateData, message: RealtimeMessage): DebateData 
   switch (message.type) {
     case "init":
       return {
-        ...state,
         debateId: message.data.debateId,
         topic: message.data.topic,
         agents: message.data.agents,
         analysis: message.data.analysis,
         status: "opening-statements",
         currentPhase: { type: "opening-statements", progress: 0 },
+        phases: {},
       };
 
     case "status":
@@ -126,6 +126,12 @@ function debateReducer(state: DebateData, message: RealtimeMessage): DebateData 
         },
       };
 
+    case "momentum":
+      return {
+        ...state,
+        momentum: message.data,
+      };
+
     default:
       return state;
   }
@@ -152,15 +158,25 @@ export function useDebateRealtime(debateId: string | null, initialTopic?: string
     refreshToken,
   });
 
-  // Process incoming messages
+  // Track how many messages we've already processed
+  const processedCountRef = useRef(0);
+
+  // Reset counter when debateId changes (new debate = new subscription)
+  useEffect(() => {
+    processedCountRef.current = 0;
+  }, [debateId]);
+
+  // Process ALL incoming messages (not just the latest)
   useEffect(() => {
     if (!subscription.data || subscription.data.length === 0) return;
 
-    // Process only the latest message
-    const latestMessage = subscription.data[subscription.data.length - 1];
-    if (latestMessage?.data) {
-      dispatch(latestMessage.data as RealtimeMessage);
+    const newMessages = subscription.data.slice(processedCountRef.current);
+    for (const msg of newMessages) {
+      if (msg?.data) {
+        dispatch(msg.data as RealtimeMessage);
+      }
     }
+    processedCountRef.current = subscription.data.length;
   }, [subscription.data]);
 
   // Track connection state

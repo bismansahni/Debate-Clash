@@ -150,6 +150,12 @@ Be objective but decisive. Someone won this exchange.`,
         topic: "updates",
         data: { type: "cross-exam", data: { round1: roundData } },
       });
+
+      await publish({
+        channel: `debate:${debateId}`,
+        topic: "updates",
+        data: { type: "momentum", data: enhancedDebateStore.get(debateId)?.momentum },
+      });
     });
 
     // Step 7: Emit completion event
