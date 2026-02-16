@@ -59,13 +59,13 @@ export function VerdictScene({ judges = [], winner, proAgent = "Pro", conAgent =
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
       {/* Phase Header */}
       <div className="text-center">
-        <div className="font-[family-name:var(--font-jetbrains)] text-[0.6rem] uppercase tracking-[0.3em] text-[var(--arena-text-dim)] mb-2">
+        <div className="font-[family-name:var(--font-jetbrains)] text-xs uppercase tracking-[0.3em] text-[var(--arena-text-dim)] mb-2">
           Final Phase
         </div>
         <h2 className="font-[family-name:var(--font-chakra)] font-bold text-3xl sm:text-4xl lg:text-5xl text-[var(--arena-text)]">
           The Verdict
         </h2>
-        <p className="font-[family-name:var(--font-jetbrains)] text-[0.6rem] text-[var(--arena-text-dim)] uppercase tracking-wider mt-2">
+        <p className="font-[family-name:var(--font-jetbrains)] text-xs text-[var(--arena-text-dim)] uppercase tracking-wider mt-2">
           Three judges. Three verdicts. One winner.
         </p>
       </div>
@@ -106,7 +106,7 @@ export function VerdictScene({ judges = [], winner, proAgent = "Pro", conAgent =
                       <div className="font-[family-name:var(--font-chakra)] font-semibold text-sm text-[var(--gold)]">
                         {judge.name}
                       </div>
-                      <div className="font-[family-name:var(--font-jetbrains)] text-[0.5rem] text-[var(--arena-text-dim)] uppercase tracking-wider">
+                      <div className="font-[family-name:var(--font-jetbrains)] text-xs text-[var(--arena-text-dim)] uppercase tracking-wider">
                         {judge.expertise}
                       </div>
                     </div>
@@ -115,18 +115,18 @@ export function VerdictScene({ judges = [], winner, proAgent = "Pro", conAgent =
                   {/* Scores */}
                   <div className="flex items-center gap-3 mb-4">
                     <div className="flex-1 text-center p-3 arena-panel">
-                      <div className="font-[family-name:var(--font-jetbrains)] text-[0.5rem] text-[var(--pro)] uppercase tracking-wider mb-1">
+                      <div className="font-[family-name:var(--font-jetbrains)] text-xs text-[var(--pro)] uppercase tracking-wider mb-1">
                         PRO
                       </div>
                       <div className="font-[family-name:var(--font-jetbrains)] text-2xl font-light text-[var(--pro)] score-slam">
                         {judge.scores.pro}
                       </div>
                     </div>
-                    <div className="font-[family-name:var(--font-jetbrains)] text-[0.5rem] text-[var(--arena-text-dim)]">
+                    <div className="font-[family-name:var(--font-jetbrains)] text-xs text-[var(--arena-text-dim)]">
                       VS
                     </div>
                     <div className="flex-1 text-center p-3 arena-panel">
-                      <div className="font-[family-name:var(--font-jetbrains)] text-[0.5rem] text-[var(--con)] uppercase tracking-wider mb-1">
+                      <div className="font-[family-name:var(--font-jetbrains)] text-xs text-[var(--con)] uppercase tracking-wider mb-1">
                         CON
                       </div>
                       <div className="font-[family-name:var(--font-jetbrains)] text-2xl font-light text-[var(--con)] score-slam">
@@ -158,7 +158,7 @@ export function VerdictScene({ judges = [], winner, proAgent = "Pro", conAgent =
             <div className="w-1.5 h-1.5 rounded-full bg-[var(--gold)] animate-pulse delay-75" />
             <div className="w-1.5 h-1.5 rounded-full bg-[var(--gold)] animate-pulse delay-150" />
           </div>
-          <p className="font-[family-name:var(--font-jetbrains)] text-[0.6rem] text-[var(--arena-text-dim)] uppercase tracking-widest">
+          <p className="font-[family-name:var(--font-jetbrains)] text-xs text-[var(--arena-text-dim)] uppercase tracking-widest">
             Judge {revealedJudges + 1} deliberating...
           </p>
         </div>
@@ -223,7 +223,7 @@ export function VerdictScene({ judges = [], winner, proAgent = "Pro", conAgent =
                 className="inline-flex items-center gap-6 sm:gap-10 px-8 py-4 arena-panel"
               >
                 <div className="text-center">
-                  <div className="font-[family-name:var(--font-jetbrains)] text-[0.5rem] text-[var(--pro)] uppercase tracking-wider mb-1">
+                  <div className="font-[family-name:var(--font-jetbrains)] text-xs text-[var(--pro)] uppercase tracking-wider mb-1">
                     {proAgent}
                   </div>
                   <div className="font-[family-name:var(--font-jetbrains)] text-3xl sm:text-4xl font-light text-[var(--pro)]">
@@ -233,14 +233,14 @@ export function VerdictScene({ judges = [], winner, proAgent = "Pro", conAgent =
 
                 <div className="flex flex-col items-center gap-1">
                   <div className="w-px h-8 bg-[var(--arena-border)]" />
-                  <div className="font-[family-name:var(--font-jetbrains)] text-[0.5rem] text-[var(--arena-text-dim)] uppercase tracking-wider">
+                  <div className="font-[family-name:var(--font-jetbrains)] text-xs text-[var(--arena-text-dim)] uppercase tracking-wider">
                     Final
                   </div>
                   <div className="w-px h-8 bg-[var(--arena-border)]" />
                 </div>
 
                 <div className="text-center">
-                  <div className="font-[family-name:var(--font-jetbrains)] text-[0.5rem] text-[var(--con)] uppercase tracking-wider mb-1">
+                  <div className="font-[family-name:var(--font-jetbrains)] text-xs text-[var(--con)] uppercase tracking-wider mb-1">
                     {conAgent}
                   </div>
                   <div className="font-[family-name:var(--font-jetbrains)] text-3xl sm:text-4xl font-light text-[var(--con)]">

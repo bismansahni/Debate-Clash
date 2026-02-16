@@ -74,7 +74,7 @@ export function CourtroomLayout({ agents, currentPhase, momentum, activeSpeakers
       {/* ── Judge Bench ── */}
       <div className="relative mb-6">
         <div className="text-center mb-2">
-          <span className="font-[family-name:var(--font-jetbrains)] text-[0.45rem] sm:text-[0.5rem] uppercase tracking-[0.3em] text-[var(--arena-text-dim)]">
+          <span className="font-[family-name:var(--font-jetbrains)] text-[0.65rem] sm:text-xs uppercase tracking-[0.3em] text-[var(--arena-text-muted)]">
             Judge&apos;s Bench
           </span>
         </div>
@@ -196,8 +196,8 @@ function JudgeSeat({ name, shortName, expertise, isActive, isJudgePhase }: Judge
         )}
 
         <div
-          className={`relative w-9 h-9 sm:w-11 sm:h-11 rounded-sm flex items-center justify-center border
-                     font-[family-name:var(--font-chakra)] font-bold text-[0.6rem] sm:text-xs
+          className={`relative w-10 h-10 sm:w-12 sm:h-12 rounded-sm flex items-center justify-center border
+                     font-[family-name:var(--font-chakra)] font-bold text-xs sm:text-sm
                      transition-all duration-500 ${
                        lit
                          ? "border-[var(--gold)] bg-[var(--gold-dim)] text-[var(--gold)]"
@@ -209,15 +209,15 @@ function JudgeSeat({ name, shortName, expertise, isActive, isJudgePhase }: Judge
       </div>
 
       <span
-        className={`mt-1 font-[family-name:var(--font-jetbrains)] text-[0.45rem] sm:text-[0.5rem]
-                   uppercase tracking-wider transition-colors duration-500 ${
-                     lit ? "text-[var(--gold)]" : "text-[var(--arena-text-dim)]"
+        className={`mt-1.5 font-[family-name:var(--font-chakra)] text-[0.65rem] sm:text-xs
+                   font-semibold transition-colors duration-500 ${
+                     lit ? "text-[var(--gold)]" : "text-[var(--arena-text-muted)]"
                    }`}
       >
         {shortName}
       </span>
       <span
-        className={`font-[family-name:var(--font-jetbrains)] text-[0.35rem] sm:text-[0.4rem] transition-colors duration-500 ${
+        className={`font-[family-name:var(--font-jetbrains)] text-[0.6rem] sm:text-[0.65rem] transition-colors duration-500 ${
           lit ? "text-[var(--arena-text-muted)]" : "text-[var(--arena-text-dim)]"
         }`}
       >
@@ -252,8 +252,8 @@ function AgentSeat({ agent, side, isActive }: AgentSeatProps) {
         )}
 
         <div
-          className="relative w-11 h-11 sm:w-14 sm:h-14 rounded-sm flex items-center justify-center border
-                     font-[family-name:var(--font-chakra)] font-bold text-xs sm:text-sm
+          className="relative w-12 h-12 sm:w-16 sm:h-16 rounded-sm flex items-center justify-center border
+                     font-[family-name:var(--font-chakra)] font-bold text-sm sm:text-base
                      transition-all duration-500"
           style={{
             borderColor: isActive ? sideColor : "var(--arena-border)",
@@ -266,15 +266,15 @@ function AgentSeat({ agent, side, isActive }: AgentSeatProps) {
       </div>
 
       <span
-        className="mt-1.5 font-[family-name:var(--font-chakra)] text-[0.55rem] sm:text-[0.65rem] font-semibold
-                   truncate max-w-20 text-center transition-colors duration-500"
-        style={{ color: isActive ? sideColor : "var(--arena-text-dim)" }}
+        className="mt-1.5 font-[family-name:var(--font-chakra)] text-xs sm:text-sm font-semibold
+                   truncate max-w-24 text-center transition-colors duration-500"
+        style={{ color: isActive ? sideColor : "var(--arena-text-muted)" }}
       >
         {agent.persona.name.split(" ")[0]}
       </span>
 
       <span
-        className="font-[family-name:var(--font-jetbrains)] text-[0.4rem] sm:text-[0.45rem] uppercase tracking-wider
+        className="font-[family-name:var(--font-jetbrains)] text-[0.6rem] sm:text-[0.65rem] uppercase tracking-wider
                    transition-colors duration-500"
         style={{ color: isActive ? sideColor : "var(--arena-text-dim)" }}
       >
@@ -302,8 +302,8 @@ function ModeratorSeat({ isActive }: ModeratorSeatProps) {
         )}
 
         <div
-          className={`relative w-8 h-8 sm:w-10 sm:h-10 rounded-sm flex items-center justify-center border
-                     font-[family-name:var(--font-chakra)] font-bold text-[0.55rem] sm:text-xs
+          className={`relative w-9 h-9 sm:w-11 sm:h-11 rounded-sm flex items-center justify-center border
+                     font-[family-name:var(--font-chakra)] font-bold text-xs sm:text-sm
                      transition-all duration-500 ${
                        isActive
                          ? "border-[var(--arena-border-active)] bg-[var(--arena-surface-hover)] text-[var(--arena-text)]"
@@ -315,15 +315,15 @@ function ModeratorSeat({ isActive }: ModeratorSeatProps) {
       </div>
 
       <span
-        className={`mt-1 font-[family-name:var(--font-jetbrains)] text-[0.45rem] uppercase tracking-wider
+        className={`mt-1 font-[family-name:var(--font-chakra)] text-[0.65rem] sm:text-xs font-semibold
                    transition-colors duration-500 ${
-                     isActive ? "text-[var(--arena-text)]" : "text-[var(--arena-text-dim)]"
+                     isActive ? "text-[var(--arena-text)]" : "text-[var(--arena-text-muted)]"
                    }`}
       >
         {MODERATOR.shortName}
       </span>
       <span
-        className={`font-[family-name:var(--font-jetbrains)] text-[0.35rem] sm:text-[0.4rem] transition-colors duration-500 ${
+        className={`font-[family-name:var(--font-jetbrains)] text-[0.6rem] sm:text-[0.65rem] transition-colors duration-500 ${
           isActive ? "text-[var(--arena-text-muted)]" : "text-[var(--arena-text-dim)]"
         }`}
       >
@@ -337,14 +337,14 @@ function EmptySeat({ label, color }: { label: string; color: string }) {
   return (
     <div className="flex flex-col items-center opacity-20">
       <div
-        className="w-11 h-11 sm:w-14 sm:h-14 rounded-sm flex items-center justify-center border border-dashed
-                   font-[family-name:var(--font-jetbrains)] text-[0.5rem]"
+        className="w-12 h-12 sm:w-16 sm:h-16 rounded-sm flex items-center justify-center border border-dashed
+                   font-[family-name:var(--font-jetbrains)] text-sm"
         style={{ borderColor: color, color }}
       >
         ?
       </div>
       <span
-        className="mt-1.5 font-[family-name:var(--font-jetbrains)] text-[0.45rem] uppercase tracking-wider"
+        className="mt-1.5 font-[family-name:var(--font-jetbrains)] text-[0.65rem] uppercase tracking-wider"
         style={{ color }}
       >
         {label}

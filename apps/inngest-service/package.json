@@ -15,6 +15,7 @@
   "dependencies": {
     "@ai-sdk/google": "^3.0.24",
     "@ai-sdk/vercel": "^2.0.30",
+    "@inngest/realtime": "^0.4.6",
     "@types/cors": "^2.8.19",
     "ai": "^6.0.79",
     "cors": "^2.8.6",

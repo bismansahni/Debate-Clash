@@ -58,7 +58,7 @@ export function AgentDisplay({ agent, side, index }: AgentDisplayProps) {
             </h3>
           </div>
           <div
-            className="font-[family-name:var(--font-jetbrains)] text-[0.6rem] uppercase tracking-[0.2em] mb-2"
+            className="font-[family-name:var(--font-jetbrains)] text-xs uppercase tracking-[0.2em] mb-2"
             style={{ color: sideColor }}
           >
             {side === "pro" ? "PRO" : "CON"} AGENT
@@ -77,7 +77,7 @@ export function AgentDisplay({ agent, side, index }: AgentDisplayProps) {
       {/* Stats */}
       <div className="grid grid-cols-2 gap-2">
         <div className="arena-panel p-3">
-          <div className="font-[family-name:var(--font-jetbrains)] text-[0.55rem] uppercase tracking-wider text-[var(--arena-text-dim)] mb-1">
+          <div className="font-[family-name:var(--font-jetbrains)] text-xs uppercase tracking-wider text-[var(--arena-text-dim)] mb-1">
             Style
           </div>
           <div className="font-[family-name:var(--font-chakra)] text-xs font-medium text-[var(--arena-text)] truncate">
@@ -85,7 +85,7 @@ export function AgentDisplay({ agent, side, index }: AgentDisplayProps) {
           </div>
         </div>
         <div className="arena-panel p-3">
-          <div className="font-[family-name:var(--font-jetbrains)] text-[0.55rem] uppercase tracking-wider text-[var(--arena-text-dim)] mb-1">
+          <div className="font-[family-name:var(--font-jetbrains)] text-xs uppercase tracking-wider text-[var(--arena-text-dim)] mb-1">
             Rhetoric
           </div>
           <div className="font-[family-name:var(--font-chakra)] text-xs font-medium text-[var(--arena-text)] truncate">
@@ -97,7 +97,7 @@ export function AgentDisplay({ agent, side, index }: AgentDisplayProps) {
       {/* Catchphrase */}
       {agent.persona.traits.catchphrases && agent.persona.traits.catchphrases.length > 0 && (
         <div className="mt-4 pt-4 border-t border-[var(--arena-border)]">
-          <div className="font-[family-name:var(--font-jetbrains)] text-[0.55rem] uppercase tracking-wider text-[var(--arena-text-dim)] mb-1.5">
+          <div className="font-[family-name:var(--font-jetbrains)] text-xs uppercase tracking-wider text-[var(--arena-text-dim)] mb-1.5">
             Signature
           </div>
           <p className="font-[family-name:var(--font-source-serif)] text-sm text-[var(--arena-text-muted)] italic">

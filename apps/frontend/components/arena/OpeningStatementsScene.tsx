@@ -10,11 +10,13 @@ interface OpeningStatementsSceneProps {
   conAgent?: string;
 }
 
-function getStatementText(statement: any): string {
-  if (typeof statement === "string") return statement;
-  if (statement?.mainPoints) return statement.mainPoints.join("\n\n");
-  if (statement?.opening?.text) return statement.opening.text;
-  return JSON.stringify(statement);
+function extractStatement(data: any): string {
+  if (!data) return "";
+  if (typeof data === "string") return data;
+  if (data.statement) return data.statement;
+  if (data.argument?.statement) return data.argument.statement;
+  if (data.argument?.opening?.text) return data.argument.opening.text;
+  return "";
 }
 
 export function OpeningStatementsScene({
@@ -38,11 +40,14 @@ export function OpeningStatementsScene({
     );
   }
 
+  const proText = extractStatement(proStatement);
+  const conText = extractStatement(conStatement);
+
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4 sm:space-y-6">
       {/* Phase Header */}
       <div className="text-center">
-        <div className="font-[family-name:var(--font-jetbrains)] text-[0.6rem] uppercase tracking-[0.3em] text-[var(--arena-text-dim)] mb-2">
+        <div className="font-[family-name:var(--font-jetbrains)] text-xs uppercase tracking-[0.3em] text-[var(--arena-text-dim)] mb-2">
           Phase 01
         </div>
         <h2 className="font-[family-name:var(--font-chakra)] font-bold text-xl sm:text-2xl lg:text-3xl text-[var(--arena-text)]">
@@ -50,9 +55,9 @@ export function OpeningStatementsScene({
         </h2>
       </div>
 
-      {/* Both statements — no tabs */}
+      {/* Both statements */}
       <div className="space-y-4">
-        {proStatement && (
+        {proText && (
           <motion.div
             initial={{ opacity: 0, x: -15 }}
             animate={{ opacity: 1, x: 0 }}
@@ -61,20 +66,20 @@ export function OpeningStatementsScene({
           >
             <div className="h-[0.125rem] w-full" style={{ background: "var(--pro)" }} />
             <div className="p-4 sm:p-5 lg:p-6">
-              <div className="font-[family-name:var(--font-jetbrains)] text-[0.55rem] uppercase tracking-wider mb-3 text-[var(--pro)]">
+              <div className="font-[family-name:var(--font-jetbrains)] text-xs uppercase tracking-wider mb-3 text-[var(--pro)]">
                 {proAgent} &mdash; Opening Statement
               </div>
               <TypewriterText
-                text={getStatementText(proStatement)}
+                text={proText}
                 speed={12}
-                className="font-[family-name:var(--font-source-serif)] text-sm sm:text-base lg:text-lg
-                         text-[var(--arena-text-muted)] leading-relaxed whitespace-pre-line"
+                className="font-[family-name:var(--font-source-serif)] text-base sm:text-lg lg:text-xl
+                         text-[var(--arena-text)] leading-relaxed italic"
               />
             </div>
           </motion.div>
         )}
 
-        {conStatement && (
+        {conText && (
           <motion.div
             initial={{ opacity: 0, x: 15 }}
             animate={{ opacity: 1, x: 0 }}
@@ -83,14 +88,14 @@ export function OpeningStatementsScene({
           >
             <div className="h-[0.125rem] w-full" style={{ background: "var(--con)" }} />
             <div className="p-4 sm:p-5 lg:p-6">
-              <div className="font-[family-name:var(--font-jetbrains)] text-[0.55rem] uppercase tracking-wider mb-3 text-[var(--con)]">
+              <div className="font-[family-name:var(--font-jetbrains)] text-xs uppercase tracking-wider mb-3 text-[var(--con)]">
                 {conAgent} &mdash; Opening Statement
               </div>
               <TypewriterText
-                text={getStatementText(conStatement)}
+                text={conText}
                 speed={12}
-                className="font-[family-name:var(--font-source-serif)] text-sm sm:text-base lg:text-lg
-                         text-[var(--arena-text-muted)] leading-relaxed whitespace-pre-line"
+                className="font-[family-name:var(--font-source-serif)] text-base sm:text-lg lg:text-xl
+                         text-[var(--arena-text)] leading-relaxed italic"
               />
             </div>
           </motion.div>

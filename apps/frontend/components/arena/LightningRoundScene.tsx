@@ -55,8 +55,8 @@ export function LightningRoundScene({ data, proAgent = "Pro", conAgent = "Con" }
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         <div>
-          <div className="font-[family-name:var(--font-jetbrains)] text-[0.6rem] uppercase tracking-[0.3em] text-[var(--arena-text-dim)] mb-2">
-            Phase 05
+          <div className="font-[family-name:var(--font-jetbrains)] text-xs uppercase tracking-[0.3em] text-[var(--arena-text-dim)] mb-2">
+            Phase 04
           </div>
           <h2 className="font-[family-name:var(--font-chakra)] font-bold text-xl sm:text-2xl lg:text-3xl text-[var(--arena-text)]">
             Lightning Round
@@ -99,7 +99,7 @@ export function LightningRoundScene({ data, proAgent = "Pro", conAgent = "Con" }
 
           {currentQuestion.forces_position && (
             <span
-              className="inline-block px-3 py-1 text-[0.55rem] font-[family-name:var(--font-jetbrains)] uppercase tracking-wider border"
+              className="inline-block px-3 py-1 text-xs font-[family-name:var(--font-jetbrains)] uppercase tracking-wider border"
               style={{ borderColor: "var(--con)", color: "var(--con)", background: "var(--con-dim)" }}
             >
               Forces Position
@@ -130,23 +130,14 @@ export function LightningRoundScene({ data, proAgent = "Pro", conAgent = "Con" }
           animate={{ opacity: 1, y: 0 }}
           className="grid grid-cols-1 lg:grid-cols-2 gap-4"
         >
-          {/* Pro Answer — simplified, no avatar */}
+          {/* Pro Answer */}
           <div className="arena-panel glow-pro overflow-hidden">
             <div className="h-[0.125rem] w-full" style={{ background: "var(--pro)" }} />
             <div className="p-4 sm:p-5">
               <div className="flex items-center justify-between mb-3">
-                <span className="font-[family-name:var(--font-jetbrains)] text-[0.55rem] uppercase tracking-wider text-[var(--pro)]">
+                <span className="font-[family-name:var(--font-jetbrains)] text-xs uppercase tracking-wider text-[var(--pro)]">
                   {proAgent}
                 </span>
-                <div className="text-right">
-                  <div className="font-[family-name:var(--font-jetbrains)] text-[0.5rem] text-[var(--arena-text-dim)] uppercase tracking-wider">
-                    Direct
-                  </div>
-                  <div className="font-[family-name:var(--font-jetbrains)] text-lg font-light text-[var(--arena-text)]">
-                    {proAnswer.directness}
-                    <span className="text-[var(--arena-text-dim)] text-xs">/10</span>
-                  </div>
-                </div>
               </div>
               <p className="font-[family-name:var(--font-source-serif)] text-sm text-[var(--arena-text-muted)] leading-relaxed mb-3">
                 {proAnswer.answer}
@@ -154,41 +145,24 @@ export function LightningRoundScene({ data, proAgent = "Pro", conAgent = "Con" }
               <div className="flex flex-wrap gap-2">
                 {proAnswer.concession_made && (
                   <span
-                    className="px-2 py-0.5 text-[0.55rem] font-[family-name:var(--font-jetbrains)] uppercase tracking-wider border"
+                    className="px-2 py-0.5 text-xs font-[family-name:var(--font-jetbrains)] uppercase tracking-wider border"
                     style={{ borderColor: "var(--con)", color: "var(--con)", background: "var(--con-dim)" }}
                   >
                     Concession
-                  </span>
-                )}
-                {proAnswer.directness >= 9 && (
-                  <span
-                    className="px-2 py-0.5 text-[0.55rem] font-[family-name:var(--font-jetbrains)] uppercase tracking-wider border"
-                    style={{ borderColor: "#22c55e", color: "#22c55e", background: "rgba(34,197,94,0.12)" }}
-                  >
-                    Direct
                   </span>
                 )}
               </div>
             </div>
           </div>
 
-          {/* Con Answer — simplified, no avatar */}
+          {/* Con Answer */}
           <div className="arena-panel glow-con overflow-hidden">
             <div className="h-[0.125rem] w-full" style={{ background: "var(--con)" }} />
             <div className="p-4 sm:p-5">
               <div className="flex items-center justify-between mb-3">
-                <span className="font-[family-name:var(--font-jetbrains)] text-[0.55rem] uppercase tracking-wider text-[var(--con)]">
+                <span className="font-[family-name:var(--font-jetbrains)] text-xs uppercase tracking-wider text-[var(--con)]">
                   {conAgent}
                 </span>
-                <div className="text-right">
-                  <div className="font-[family-name:var(--font-jetbrains)] text-[0.5rem] text-[var(--arena-text-dim)] uppercase tracking-wider">
-                    Direct
-                  </div>
-                  <div className="font-[family-name:var(--font-jetbrains)] text-lg font-light text-[var(--arena-text)]">
-                    {conAnswer.directness}
-                    <span className="text-[var(--arena-text-dim)] text-xs">/10</span>
-                  </div>
-                </div>
               </div>
               <p className="font-[family-name:var(--font-source-serif)] text-sm text-[var(--arena-text-muted)] leading-relaxed mb-3">
                 {conAnswer.answer}
@@ -196,18 +170,10 @@ export function LightningRoundScene({ data, proAgent = "Pro", conAgent = "Con" }
               <div className="flex flex-wrap gap-2">
                 {conAnswer.concession_made && (
                   <span
-                    className="px-2 py-0.5 text-[0.55rem] font-[family-name:var(--font-jetbrains)] uppercase tracking-wider border"
+                    className="px-2 py-0.5 text-xs font-[family-name:var(--font-jetbrains)] uppercase tracking-wider border"
                     style={{ borderColor: "var(--con)", color: "var(--con)", background: "var(--con-dim)" }}
                   >
                     Concession
-                  </span>
-                )}
-                {conAnswer.directness >= 9 && (
-                  <span
-                    className="px-2 py-0.5 text-[0.55rem] font-[family-name:var(--font-jetbrains)] uppercase tracking-wider border"
-                    style={{ borderColor: "#22c55e", color: "#22c55e", background: "rgba(34,197,94,0.12)" }}
-                  >
-                    Direct
                   </span>
                 )}
               </div>
@@ -266,7 +232,7 @@ export function LightningRoundScene({ data, proAgent = "Pro", conAgent = "Con" }
           className="arena-panel p-4 sm:p-5 border-l-2"
           style={{ borderLeftColor: "var(--con)" }}
         >
-          <div className="font-[family-name:var(--font-jetbrains)] text-[0.6rem] uppercase tracking-wider text-[var(--con)] mb-3">
+          <div className="font-[family-name:var(--font-jetbrains)] text-xs uppercase tracking-wider text-[var(--con)] mb-3">
             Concessions This Round
           </div>
           <ul className="space-y-2">

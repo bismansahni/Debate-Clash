@@ -1,32 +1,23 @@
 /**
  * Enhanced in-memory debate state store
- * Supports all new phases: cross-exam, audience Q&A, lightning round, etc.
+ * Simplified for one-liner debate format
  */
 
 import type {
   ControversyMoment,
-  EnhancedJudgment,
-  EnhancedSynthesis,
-  JudgeDeliberation,
-  LiveFactCheck,
   MomentumState,
-  PreShow,
+  QuickJudgment,
 } from "../schemas/enhanced-types.ts";
 
 // Phase types
 export type DebatePhase =
   | "preparing"
-  | "researching"
-  | "pre-show"
   | "opening-statements"
   | "cross-examination"
   | "rebuttals"
-  | "audience-questions"
   | "lightning-round"
   | "closing-statements"
-  | "deliberation"
   | "verdict"
-  | "synthesis"
   | "completed"
   | "error";
 
@@ -36,29 +27,13 @@ export interface CurrentPhase {
   progress: number; // 0-1
 }
 
-export interface ResearchMontage {
-  findings: any[];
-  status: "in_progress" | "complete";
-  liveUpdates: string[];
-}
-
 export interface OpeningPhase {
   proStatement?: any;
   conStatement?: any;
-  liveFactChecks?: LiveFactCheck[];
-  moderatorReactions?: string[];
-  momentumShifts?: number[];
 }
 
 export interface CrossExamPhase {
   round1?: {
-    questioner: string;
-    respondent: string;
-    questions: any[];
-    answers: any[];
-    analysis: any;
-  };
-  round2?: {
     questioner: string;
     respondent: string;
     questions: any[];
@@ -70,13 +45,6 @@ export interface CrossExamPhase {
 export interface RebuttalPhase {
   proRebuttal?: any;
   conRebuttal?: any;
-  moderatorCommentary?: string[];
-}
-
-export interface AudiencePhase {
-  questions: any[];
-  proResponses: any[];
-  conResponses: any[];
 }
 
 export interface LightningPhase {
@@ -91,16 +59,10 @@ export interface ClosingPhase {
   proClosing?: any;
 }
 
-export interface DeliberationPhase {
-  logicJudge?: JudgeDeliberation;
-  evidenceJudge?: JudgeDeliberation;
-  rhetoricJudge?: JudgeDeliberation;
-}
-
 export interface VerdictPhase {
-  logicScore?: EnhancedJudgment | undefined;
-  evidenceScore?: EnhancedJudgment | undefined;
-  rhetoricScore?: EnhancedJudgment | undefined;
+  logicScore?: QuickJudgment | undefined;
+  evidenceScore?: QuickJudgment | undefined;
+  rhetoricScore?: QuickJudgment | undefined;
   finalScore?:
     | {
         pro: number;
@@ -111,25 +73,6 @@ export interface VerdictPhase {
     | undefined;
 }
 
-export interface Highlight {
-  bestMoments: Array<{
-    text: string;
-    agent: string;
-    phase: string;
-    type: string;
-  }>;
-  topQuotes: Array<{
-    text: string;
-    agent: string;
-    context: string;
-  }>;
-  controversies: ControversyMoment[];
-  shareableCards: Array<{
-    type: string;
-    content: any;
-  }>;
-}
-
 export interface EnhancedDebateState {
   debateId: string;
   topic: string;
@@ -138,14 +81,8 @@ export interface EnhancedDebateState {
   // Current phase tracking
   currentPhase: CurrentPhase;
 
-  // Pre-show content
-  preShow?: PreShow;
-
   // Topic analysis
   analysis?: any;
-
-  // Research montage
-  researchMontage?: ResearchMontage;
 
   // Agents with full personas
   agents?: any[];
@@ -155,26 +92,14 @@ export interface EnhancedDebateState {
     openingStatements?: OpeningPhase;
     crossExamination?: CrossExamPhase;
     rebuttals?: RebuttalPhase;
-    audienceQuestions?: AudiencePhase;
     lightningRound?: LightningPhase;
     closingStatements?: ClosingPhase;
-    deliberation?: DeliberationPhase;
     verdict?: VerdictPhase;
   };
 
   // Live tracking
   momentum?: MomentumState;
   controversyMoments?: ControversyMoment[];
-  liveFactChecks?: LiveFactCheck[];
-
-  // Judging
-  judging?: any;
-
-  // Synthesis
-  synthesis?: EnhancedSynthesis;
-
-  // Highlights for sharing
-  highlights?: Highlight;
 
   // Winner
   winner?: any;
@@ -242,48 +167,6 @@ class EnhancedDebateStore {
   }
 
   // ===========================
-  // PRE-SHOW
-  // ===========================
-
-  setPreShow(debateId: string, preShow: PreShow) {
-    this.set(debateId, { preShow });
-  }
-
-  // ===========================
-  // RESEARCH MONTAGE
-  // ===========================
-
-  initResearchMontage(debateId: string) {
-    this.set(debateId, {
-      researchMontage: {
-        findings: [],
-        status: "in_progress",
-        liveUpdates: [],
-      },
-    });
-  }
-
-  addResearchUpdate(debateId: string, update: string, finding?: any) {
-    const state = this.get(debateId);
-    if (state?.researchMontage) {
-      const montage = state.researchMontage;
-      montage.liveUpdates.push(update);
-      if (finding) {
-        montage.findings.push(finding);
-      }
-      this.set(debateId, { researchMontage: montage });
-    }
-  }
-
-  completeResearchMontage(debateId: string) {
-    const state = this.get(debateId);
-    if (state?.researchMontage) {
-      state.researchMontage.status = "complete";
-      this.set(debateId, { researchMontage: state.researchMontage });
-    }
-  }
-
-  // ===========================
   // OPENING STATEMENTS
   // ===========================
 
@@ -322,8 +205,6 @@ class EnhancedDebateStore {
       const crossExam = state.phases.crossExamination || {};
       if (roundNum === 1) {
         crossExam.round1 = data;
-      } else {
-        crossExam.round2 = data;
       }
       this.set(debateId, {
         phases: { ...state.phases, crossExamination: crossExam },
@@ -346,22 +227,6 @@ class EnhancedDebateStore {
       }
       this.set(debateId, {
         phases: { ...state.phases, rebuttals },
-      });
-    }
-  }
-
-  // ===========================
-  // AUDIENCE QUESTIONS
-  // ===========================
-
-  setAudienceQuestions(debateId: string, questions: any[], proResponses: any[], conResponses: any[]) {
-    const state = this.get(debateId);
-    if (state) {
-      this.set(debateId, {
-        phases: {
-          ...state.phases,
-          audienceQuestions: { questions, proResponses, conResponses },
-        },
       });
     }
   }
@@ -399,32 +264,13 @@ class EnhancedDebateStore {
   }
 
   // ===========================
-  // JUDGE DELIBERATION
-  // ===========================
-
-  setJudgeDeliberation(
-    debateId: string,
-    judgeType: "logicJudge" | "evidenceJudge" | "rhetoricJudge",
-    deliberation: JudgeDeliberation,
-  ) {
-    const state = this.get(debateId);
-    if (state) {
-      const delib = state.phases.deliberation || {};
-      delib[judgeType] = deliberation;
-      this.set(debateId, {
-        phases: { ...state.phases, deliberation: delib },
-      });
-    }
-  }
-
-  // ===========================
   // VERDICT
   // ===========================
 
   setJudgeVerdict(
     debateId: string,
     judgeType: "logicScore" | "evidenceScore" | "rhetoricScore",
-    verdict: EnhancedJudgment,
+    verdict: QuickJudgment,
   ) {
     const state = this.get(debateId);
     if (state) {
@@ -468,11 +314,9 @@ class EnhancedDebateStore {
       const momentum = state.momentum;
       momentum.history.push(event);
 
-      // Update current score
       momentum.currentScore.pro += event.shift > 0 ? event.shift : 0;
       momentum.currentScore.con += event.shift < 0 ? Math.abs(event.shift) : 0;
 
-      // Update leader
       if (momentum.currentScore.pro > momentum.currentScore.con) {
         momentum.currentLeader = "pro";
       } else if (momentum.currentScore.con > momentum.currentScore.pro) {
@@ -496,35 +340,6 @@ class EnhancedDebateStore {
       controversies.push(moment);
       this.set(debateId, { controversyMoments: controversies });
     }
-  }
-
-  // ===========================
-  // LIVE FACT-CHECKS
-  // ===========================
-
-  addLiveFactCheck(debateId: string, factCheck: LiveFactCheck) {
-    const state = this.get(debateId);
-    if (state) {
-      const checks = state.liveFactChecks || [];
-      checks.push(factCheck);
-      this.set(debateId, { liveFactChecks: checks });
-    }
-  }
-
-  // ===========================
-  // SYNTHESIS
-  // ===========================
-
-  setSynthesis(debateId: string, synthesis: EnhancedSynthesis) {
-    this.set(debateId, { synthesis });
-  }
-
-  // ===========================
-  // HIGHLIGHTS
-  // ===========================
-
-  setHighlights(debateId: string, highlights: Highlight) {
-    this.set(debateId, { highlights });
   }
 }
 

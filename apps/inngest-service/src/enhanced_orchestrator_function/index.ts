@@ -5,20 +5,17 @@ import { AgentPersonaSchema, DebateAnalysisSchema } from "../schemas/enhanced-ty
 import { enhancedDebateStore } from "../state/enhanced-debate-store.ts";
 
 /**
- * Enhanced Debate Orchestrator
- * Manages the complete multi-phase debate flow:
- * 1. Pre-Show → 2. Research → 3. Opening → 4. Cross-Exam →
- * 5. Rebuttals → 6. Audience Q&A → 7. Lightning → 8. Closing →
- * 9. Deliberation → 10. Verdict → 11. Synthesis
+ * Enhanced Debate Orchestrator (One-Liner Edition)
+ * 6-phase flow: Opening -> Cross-Exam -> Rebuttals -> Lightning -> Closing -> Verdict
  */
 export const enhancedOrchestrator = inngest.createFunction(
   { id: "enhanced-debate-orchestrator" },
   { event: "debate/initiate-enhanced" },
-  async ({ event, step }) => {
+  async ({ event, step, publish }) => {
     const topic = event.data.topic;
 
     console.log(`\n${"=".repeat(60)}`);
-    console.log(`🎭 ENHANCED DEBATE ORCHESTRATOR`);
+    console.log(`🎭 DEBATE ORCHESTRATOR (One-Liner Edition)`);
     console.log(`📋 Topic: "${topic}"`);
     console.log(`${"=".repeat(60)}\n`);
 
@@ -36,7 +33,6 @@ export const enhancedOrchestrator = inngest.createFunction(
         phases: {},
       });
 
-      // Initialize momentum tracking
       enhancedDebateStore.initMomentum(id);
 
       console.log(`✅ Debate ID: ${id}`);
@@ -58,22 +54,20 @@ Topic: "${topic}"
 
 Provide:
 1. Debate type (binary for yes/no, multi-perspective for complex issues, comparison for A vs B)
-2. Agent positions needed (2-4 agents with their roles, stances, and personas)
+2. Agent positions needed (2 agents with their roles, stances, and personas)
 3. Number of rounds needed (2-4 based on complexity)
 4. Complexity level
-5. Whether agents need a research phase
+5. Whether agents need a research phase (always set to false -- we skip research)
 
 Create INTERESTING personas with personality, not generic "Agent A" / "Agent B":
 - Give them names and backgrounds
 - Make them distinct (different speaking styles, approaches)
-- Example: "Dr. Sarah Chen, AI ethics researcher" vs "Prof. Alex Kumar, innovation economist"
 
 Make personas that will CLASH interestingly.`,
       });
 
       const analysis = analysisResult.output;
 
-      // Create rich agent personas
       console.log(`🤖 Creating ${analysis.positions.length} agents with full personas...`);
 
       const agentList = await Promise.all(
@@ -98,33 +92,9 @@ Create a RICH personality:
 - Motivation for their position
 - Debate style (opening move, argumentation, engagement tactics, closing move)
 
-Make them feel HUMAN, not robotic. They should have a distinct voice.
-
-Example good output:
-{
-  "name": "Dr. Sarah Chen",
-  "age": 42,
-  "background": "Former tech executive turned AI safety advocate after witnessing harmful deployment practices",
-  "traits": {
-    "speaking_style": "Passionate but measured, uses analogies from history",
-    "emotional_range": "Concerned → Urgent → Resolute",
-    "rhetoric_preference": "Historical parallels, rhetorical questions, personal anecdotes",
-    "tone": "Authoritative but not condescending, like a concerned expert warning of danger",
-    "catchphrases": ["Let me be clear", "Here's what they won't tell you", "History shows us"],
-    "weaknesses": "Can be slightly alarmist, sometimes overrelies on historical examples"
-  },
-  "motivation": "Saw AI safety concerns dismissed in her tech career, now determined to prevent catastrophic outcomes",
-  "debate_style": {
-    "opening_move": "Establish stakes with emotional hook",
-    "argumentation": "Logos (logic) + Pathos (emotion) + Ethos (credibility)",
-    "engagement_with_opponent": "Respectful but firm, anticipates counterarguments",
-    "closing_move": "Rhetorical question that reframes the entire debate"
-  }
-}`,
+Make them feel HUMAN, not robotic. They should have a distinct voice.`,
           });
 
-          // Explicitly label pro/con based on index
-          // First agent is always pro, second is always con
           const side = index === 0 ? "pro" : "con";
 
           return {
@@ -148,67 +118,20 @@ Example good output:
       return { analysis, agents: agentList };
     });
 
-    // Step 2: Generate Pre-Show Content
-    await step.run("trigger-pre-show", async () => {
-      console.log(`\n🎬 Phase 1: PRE-SHOW`);
-
-      await inngest.send({
-        name: "pre-show/generate",
+    // Publish init data (agents, analysis, topic)
+    await step.run("publish-init", async () => {
+      await publish({
+        channel: `debate:${debateId}`,
+        topic: "updates",
         data: {
-          debateId,
-          topic,
-          analysis,
-          agents,
+          type: "init",
+          data: { debateId, topic, agents, analysis },
         },
       });
     });
 
-    // Wait for pre-show to complete
-    await step.waitForEvent("wait-for-pre-show", {
-      event: "pre-show/complete",
-      timeout: "2m",
-      if: `async.data.debateId == "${debateId}"`,
-    });
-
-    // Step 3: Research Phase (if needed)
-    if (analysis.needsResearch) {
-      console.log(`\n🔬 Phase 2: RESEARCH MONTAGE`);
-
-      enhancedDebateStore.initResearchMontage(debateId);
-      enhancedDebateStore.updatePhase(debateId, "researching", "In Progress", 0);
-
-      // Trigger research for each agent
-      await step.run("trigger-research", async () => {
-        const researchEvents = agents.map((agent) => ({
-          name: "agent/research",
-          data: {
-            debateId,
-            topic,
-            aspect: agent.stance.toLowerCase().includes("pro") ? "pro" : "con",
-            persona: agent.persona.name,
-          },
-        }));
-
-        await inngest.send(researchEvents);
-      });
-
-      // Wait for research
-      await Promise.all(
-        agents.map((agent) =>
-          step.waitForEvent(`wait-for-research-${agent.id}`, {
-            event: "agent/research-complete",
-            timeout: "5m",
-            if: `async.data.debateId == "${debateId}" && async.data.persona == "${agent.persona.name}"`,
-          }),
-        ),
-      );
-
-      enhancedDebateStore.completeResearchMontage(debateId);
-      console.log(`✅ Research phase complete`);
-    }
-
-    // Step 4: Opening Statements
-    console.log(`\n🎤 Phase 3: OPENING STATEMENTS`);
+    // Step 2: Opening Statements
+    console.log(`\n🎤 Phase 1: OPENING STATEMENTS`);
     enhancedDebateStore.updatePhase(debateId, "opening-statements", "Starting", 0);
 
     await step.run("trigger-opening-statements", async () => {
@@ -218,7 +141,6 @@ Example good output:
           debateId,
           topic,
           agents,
-          research: enhancedDebateStore.get(debateId)?.researchMontage?.findings,
         },
       });
     });
@@ -229,14 +151,22 @@ Example good output:
       if: `async.data.debateId == "${debateId}"`,
     });
 
-    // Step 5: Cross-Examination
-    console.log(`\n⚔️ Phase 4: CROSS-EXAMINATION`);
+    // Publish status: opening complete
+    await step.run("publish-status-after-opening", async () => {
+      await publish({
+        channel: `debate:${debateId}`,
+        topic: "updates",
+        data: { type: "status", data: { phase: "cross-examination", progress: 0 } },
+      });
+    });
+
+    // Step 3: Cross-Examination (1 round only -- Pro questions Con)
+    console.log(`\n⚔️ Phase 2: CROSS-EXAMINATION`);
     enhancedDebateStore.updatePhase(debateId, "cross-examination", "Round 1", 0);
 
     const proAgent = agents.find((a) => a.side === "pro");
     const conAgent = agents.find((a) => a.side === "con");
 
-    // Round 1: Pro questions Con
     await step.run("cross-exam-round-1", async () => {
       await inngest.send({
         name: "cross-exam/start",
@@ -259,33 +189,17 @@ Example good output:
       if: `async.data.debateId == "${debateId}" && async.data.roundNum == 1`,
     });
 
-    // Round 2: Con questions Pro
-    enhancedDebateStore.updatePhase(debateId, "cross-examination", "Round 2", 0.5);
-
-    await step.run("cross-exam-round-2", async () => {
-      await inngest.send({
-        name: "cross-exam/start",
-        data: {
-          debateId,
-          roundNum: 2,
-          questioner: conAgent,
-          respondent: proAgent,
-          context: {
-            topic,
-            opponentArguments: enhancedDebateStore.get(debateId)?.phases.openingStatements?.proStatement,
-          },
-        },
+    // Publish status: cross-exam complete
+    await step.run("publish-status-after-crossexam", async () => {
+      await publish({
+        channel: `debate:${debateId}`,
+        topic: "updates",
+        data: { type: "status", data: { phase: "rebuttals", progress: 0 } },
       });
     });
 
-    await step.waitForEvent("wait-cross-exam-2", {
-      event: "cross-exam/complete",
-      timeout: "5m",
-      if: `async.data.debateId == "${debateId}" && async.data.roundNum == 2`,
-    });
-
-    // Step 6: Rebuttals
-    console.log(`\n🔄 Phase 5: REBUTTALS`);
+    // Step 4: Rebuttals
+    console.log(`\n🔄 Phase 3: REBUTTALS`);
     enhancedDebateStore.updatePhase(debateId, "rebuttals", "In Progress", 0);
 
     await step.run("trigger-rebuttals", async () => {
@@ -306,30 +220,17 @@ Example good output:
       if: `async.data.debateId == "${debateId}"`,
     });
 
-    // Step 7: Audience Questions
-    console.log(`\n👥 Phase 6: AUDIENCE QUESTIONS`);
-    enhancedDebateStore.updatePhase(debateId, "audience-questions", "In Progress", 0);
-
-    await step.run("trigger-audience-questions", async () => {
-      await inngest.send({
-        name: "audience/ask-questions",
-        data: {
-          debateId,
-          topic,
-          agents,
-          debateContext: enhancedDebateStore.get(debateId),
-        },
+    // Publish status: rebuttals complete
+    await step.run("publish-status-after-rebuttals", async () => {
+      await publish({
+        channel: `debate:${debateId}`,
+        topic: "updates",
+        data: { type: "status", data: { phase: "lightning-round", progress: 0 } },
       });
     });
 
-    await step.waitForEvent("wait-audience", {
-      event: "audience/complete",
-      timeout: "5m",
-      if: `async.data.debateId == "${debateId}"`,
-    });
-
-    // Step 8: Lightning Round
-    console.log(`\n⚡ Phase 7: LIGHTNING ROUND`);
+    // Step 5: Lightning Round
+    console.log(`\n⚡ Phase 4: LIGHTNING ROUND`);
     enhancedDebateStore.updatePhase(debateId, "lightning-round", "In Progress", 0);
 
     await step.run("trigger-lightning", async () => {
@@ -349,8 +250,17 @@ Example good output:
       if: `async.data.debateId == "${debateId}"`,
     });
 
-    // Step 9: Closing Statements
-    console.log(`\n🎬 Phase 8: CLOSING STATEMENTS`);
+    // Publish status: lightning complete
+    await step.run("publish-status-after-lightning", async () => {
+      await publish({
+        channel: `debate:${debateId}`,
+        topic: "updates",
+        data: { type: "status", data: { phase: "closing-statements", progress: 0 } },
+      });
+    });
+
+    // Step 6: Closing Statements
+    console.log(`\n🎬 Phase 5: CLOSING STATEMENTS`);
     enhancedDebateStore.updatePhase(debateId, "closing-statements", "In Progress", 0);
 
     await step.run("trigger-closing", async () => {
@@ -371,28 +281,17 @@ Example good output:
       if: `async.data.debateId == "${debateId}"`,
     });
 
-    // Step 10: Judge Deliberation
-    console.log(`\n⚖️ Phase 9: JUDGE DELIBERATION`);
-    enhancedDebateStore.updatePhase(debateId, "deliberation", "In Progress", 0);
-
-    await step.run("trigger-deliberation", async () => {
-      await inngest.send({
-        name: "judges/deliberate",
-        data: {
-          debateId,
-          debateData: enhancedDebateStore.get(debateId),
-        },
+    // Publish status: closing complete
+    await step.run("publish-status-after-closing", async () => {
+      await publish({
+        channel: `debate:${debateId}`,
+        topic: "updates",
+        data: { type: "status", data: { phase: "verdict", progress: 0 } },
       });
     });
 
-    await step.waitForEvent("wait-deliberation", {
-      event: "judges/deliberation-complete",
-      timeout: "5m",
-      if: `async.data.debateId == "${debateId}"`,
-    });
-
-    // Step 11: Verdict
-    console.log(`\n🏆 Phase 10: VERDICT`);
+    // Step 7: Verdict
+    console.log(`\n🏆 Phase 6: VERDICT`);
     enhancedDebateStore.updatePhase(debateId, "verdict", "Revealing Scores", 0);
 
     await step.run("trigger-verdict", async () => {
@@ -411,35 +310,24 @@ Example good output:
       if: `async.data.debateId == "${debateId}"`,
     });
 
-    // Step 12: Synthesis
-    console.log(`\n📖 Phase 11: SYNTHESIS`);
-    enhancedDebateStore.updatePhase(debateId, "synthesis", "Generating", 0);
-
-    await step.run("trigger-synthesis", async () => {
-      await inngest.send({
-        name: "synthesis/generate",
-        data: {
-          debateId,
-          debateData: enhancedDebateStore.get(debateId),
-        },
-      });
-    });
-
-    await step.waitForEvent("wait-synthesis", {
-      event: "synthesis/complete",
-      timeout: "5m",
-      if: `async.data.debateId == "${debateId}"`,
-    });
-
     // Complete!
     enhancedDebateStore.updatePhase(debateId, "completed", "Finished", 1.0);
+
+    // Publish completed status
+    await step.run("publish-status-completed", async () => {
+      await publish({
+        channel: `debate:${debateId}`,
+        topic: "updates",
+        data: { type: "status", data: { phase: "completed", progress: 1.0 } },
+      });
+    });
 
     console.log(`\n${"=".repeat(60)}`);
     console.log(`✅ DEBATE COMPLETE!`);
     console.log(`${"=".repeat(60)}\n`);
 
     return {
-      message: "Enhanced debate completed successfully!",
+      message: "Debate completed successfully!",
       debateId,
       topic,
       status: "completed",
@@ -471,15 +359,18 @@ YOUR DEBATE STYLE:
 YOUR STANCE ON "${topic}":
 ${stance}
 
-CRITICAL RULES:
-✓ Use first person ("I argue", "I've witnessed")
-✓ Address the audience ("you", "we", "ask yourself")
-✓ Show passion but stay credible
-✓ Use contractions (I'm, we're, they'll) - sound natural
-✓ Vary sentence length (short for impact, long for explanation)
-✗ DO NOT sound like a research paper
-✗ DO NOT be boring
-✗ DO NOT use jargon without explanation
+CRITICAL RULES — SOUND LIKE A REAL HUMAN TALKING:
+✓ ONE sentence only. Short. Punchy.
+✓ Talk like you're in a heated bar argument, not a courtroom
+✓ Use contractions (don't, can't, won't, that's)
+✓ Use everyday words — say "look" not "I've found that", say "wrong" not "introduces fatal inconsistency"
+✓ Show raw emotion — anger, passion, frustration, conviction
+✓ Be specific and concrete, not abstract and flowery
+✗ NEVER use semicolons
+✗ NEVER use academic/formal phrasing ("I've audited", "legacy system variable", "biological noise")
+✗ NEVER sound like a research paper, a policy document, or a robot
+✗ NEVER start with "I've" followed by a formal verb
 
-Remember: You're not writing a paper. You're performing for an audience. Make them FEEL the stakes.`;
+GOOD examples: "Come on, machines don't have bad days — that's the whole point."
+BAD examples: "I've audited your mercy and found only biological noise; the pulse you prize is a legacy system variable."`;
 }
