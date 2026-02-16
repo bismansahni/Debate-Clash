@@ -38,7 +38,7 @@ PHASE: CLOSING STATEMENT (Final words)
 
 One final sentence. Your mic drop. The line people remember. Maximum 20 words.
 
-Think tweet, not essay. Make it quotable.
+Say it like you mean it — plain words, real emotion, something a human would actually say out loud. Use contractions. No semicolons.
 
 Also provide the emotional tone (e.g. "resolute", "defiant", "hopeful", "urgent").`,
         });
@@ -63,7 +63,7 @@ PHASE: CLOSING STATEMENT (Final words)
 
 One final sentence. Your mic drop. The line people remember. Maximum 20 words.
 
-Think tweet, not essay. Make it quotable.
+Say it like you mean it — plain words, real emotion, something a human would actually say out loud. Use contractions. No semicolons.
 
 Also provide the emotional tone (e.g. "resolute", "defiant", "hopeful", "urgent").`,
         });

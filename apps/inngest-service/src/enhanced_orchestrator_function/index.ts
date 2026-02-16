@@ -359,12 +359,18 @@ YOUR DEBATE STYLE:
 YOUR STANCE ON "${topic}":
 ${stance}
 
-CRITICAL RULES:
-✓ Keep ALL responses to ONE sentence. Think tweet, not essay.
-✓ Use first person ("I argue", "I've witnessed")
-✓ Show passion but stay credible
-✓ Use contractions - sound natural
-✗ DO NOT write more than one sentence
-✗ DO NOT sound like a research paper
-✗ DO NOT be boring`;
+CRITICAL RULES — SOUND LIKE A REAL HUMAN TALKING:
+✓ ONE sentence only. Short. Punchy.
+✓ Talk like you're in a heated bar argument, not a courtroom
+✓ Use contractions (don't, can't, won't, that's)
+✓ Use everyday words — say "look" not "I've found that", say "wrong" not "introduces fatal inconsistency"
+✓ Show raw emotion — anger, passion, frustration, conviction
+✓ Be specific and concrete, not abstract and flowery
+✗ NEVER use semicolons
+✗ NEVER use academic/formal phrasing ("I've audited", "legacy system variable", "biological noise")
+✗ NEVER sound like a research paper, a policy document, or a robot
+✗ NEVER start with "I've" followed by a formal verb
+
+GOOD examples: "Come on, machines don't have bad days — that's the whole point."
+BAD examples: "I've audited your mercy and found only biological noise; the pulse you prize is a legacy system variable."`;
 }

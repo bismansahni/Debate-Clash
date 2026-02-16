@@ -42,7 +42,9 @@ DEBATE TOPIC: "${topic}"
 YOUR STANCE: ${proAgent.stance}
 PHASE: Opening Statement
 
-Give ONE punchy sentence that captures your entire position. Maximum 20 words. Make it quotable. Think tweet, not essay.
+Give ONE punchy sentence that captures your entire position. Maximum 20 words.
+
+Say it like you'd say it to someone's face — raw, real, no fancy words. Use contractions. No semicolons. No academic language.
 
 Also provide the emotional tone of your statement (e.g. "passionate", "measured", "urgent", "defiant").`,
         });
@@ -65,7 +67,9 @@ DEBATE TOPIC: "${topic}"
 YOUR STANCE: ${conAgent.stance}
 PHASE: Opening Statement
 
-Give ONE punchy sentence that captures your entire position. Maximum 20 words. Make it quotable. Think tweet, not essay.
+Give ONE punchy sentence that captures your entire position. Maximum 20 words.
+
+Say it like you'd say it to someone's face — raw, real, no fancy words. Use contractions. No semicolons. No academic language.
 
 Also provide the emotional tone of your statement (e.g. "passionate", "measured", "urgent", "defiant").`,
         });

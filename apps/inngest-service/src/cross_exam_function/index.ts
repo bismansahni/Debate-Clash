@@ -70,7 +70,7 @@ ${questions.map((q, i) => `${i + 1}. ${q.question}`).join("\n")}
 
 YOUR STANCE: ${respondent.stance}
 
-Answer in ONE sentence per question. Maximum 15 words per answer.
+Answer in ONE sentence per question. Maximum 15 words per answer. Sound like a real person talking — casual, direct, with contractions. No formal or academic language.
 
 ANSWER EACH QUESTION using one of these strategies:
 - DIRECT_ANSWER: Answer honestly and directly

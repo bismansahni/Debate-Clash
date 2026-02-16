@@ -45,7 +45,9 @@ PHASE: REBUTTAL
 
 Your opponent said: "${opponentStatement}"
 
-Hit back with ONE sentence. Maximum 25 words. Quote them and destroy the argument. Think tweet, not essay.
+Hit back with ONE sentence. Maximum 25 words. Call out exactly what's wrong with what they said.
+
+Talk like a real person arguing — casual, direct, emotional. Use contractions. No semicolons. No academic language.
 
 Also provide the emotional tone of your rebuttal (e.g. "aggressive", "dismissive", "sarcastic", "measured").`,
         });
@@ -72,7 +74,9 @@ PHASE: REBUTTAL
 
 Your opponent said: "${opponentStatement}"
 
-Hit back with ONE sentence. Maximum 25 words. Quote them and destroy the argument. Think tweet, not essay.
+Hit back with ONE sentence. Maximum 25 words. Call out exactly what's wrong with what they said.
+
+Talk like a real person arguing — casual, direct, emotional. Use contractions. No semicolons. No academic language.
 
 Also provide the emotional tone of your rebuttal (e.g. "aggressive", "dismissive", "sarcastic", "measured").`,
         });
