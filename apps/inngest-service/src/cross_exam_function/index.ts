@@ -10,11 +10,12 @@ import { calculateMomentumShift } from "../utils/momentum-tracker.ts";
 /**
  * Cross-Examination Phase
  * Direct Q&A between agents - creates real clash and dramatic moments
+ * Stays sequential (Q->A->Analysis is inherently dependent)
  */
 export const crossExaminationFunction = inngest.createFunction(
   { id: "cross-examination" },
   { event: "cross-exam/start" },
-  async ({ event, step }) => {
+  async ({ event, step, publish }) => {
     const { debateId, roundNum, questioner, respondent, context } = event.data;
 
     console.log(
@@ -39,21 +40,14 @@ OPPONENT'S STANCE: ${respondent.stance}
 OPPONENT'S PREVIOUS ARGUMENTS:
 ${JSON.stringify(context.opponentArguments, null, 2)}
 
-Your goal: Ask 3 POINTED questions that expose weaknesses, force concessions, or trap them into contradictions.
+Your goal: Ask 2 POINTED questions that expose weaknesses or force concessions.
 
 QUESTION REQUIREMENTS:
-1. Each question must be specific and answerable (no vague philosophical stuff)
-2. Target their weakest argument or biggest assumption
-3. Force them to choose between bad options OR make a concession
-4. Be direct and challenging (this is combat, not a friendly chat)
+1. Each question must be specific and answerable
+2. Force them to choose between bad options OR make a concession
+3. Be direct and challenging
 
-STRATEGIES:
-- "If X is true, then why did you ignore Y?"
-- "Can you name ONE example where...?"
-- "You claimed A, but that contradicts B. Which is it?"
-- "If your opponent says X, what's your red line? Be specific."
-
-Return 3 questions with intent and target_weakness for each.`,
+Return 2 questions with intent and target_weakness for each.`,
       });
 
       console.log(`✅ Generated ${result.output.questions.length} cross-exam questions`);
@@ -76,17 +70,13 @@ ${questions.map((q, i) => `${i + 1}. ${q.question}`).join("\n")}
 
 YOUR STANCE: ${respondent.stance}
 
-ANSWER EACH QUESTION using one of these strategies:
-- DIRECT_ANSWER: Answer honestly and directly (shows strength)
-- DEFLECTION: Redirect to a different point (use sparingly, looks weak)
-- COUNTER_ATTACK: Turn the question against them ("That's exactly why...")
-- CONCESSION: Admit a limitation BUT pivot to strength ("Fair point, but...")
+Answer in ONE sentence per question. Maximum 15 words per answer.
 
-RULES:
-- You can evade MAXIMUM 1 question (more = looks desperate)
-- Be specific - no vague politician-speak
-- If you deflect, make it subtle and strategic
-- If you concede, do it with dignity and pivot quickly
+ANSWER EACH QUESTION using one of these strategies:
+- DIRECT_ANSWER: Answer honestly and directly
+- DEFLECTION: Redirect to a different point
+- COUNTER_ATTACK: Turn the question against them
+- CONCESSION: Admit a limitation BUT pivot
 
 Return answers with strategy and evasion flag for each.`,
       });
@@ -144,14 +134,21 @@ Be objective but decisive. Someone won this exchange.`,
       console.log(`🔥 Detected ${moments.length} controversy moments`);
     });
 
-    // Step 6: Store results
+    // Step 6: Store results + publish
     await step.run("store-results", async () => {
-      enhancedDebateStore.setCrossExamRound(debateId, roundNum as 1 | 2, {
+      const roundData = {
         questioner: questioner.persona.name,
         respondent: respondent.persona.name,
         questions,
         answers,
         analysis,
+      };
+      enhancedDebateStore.setCrossExamRound(debateId, roundNum as 1 | 2, roundData);
+
+      await publish({
+        channel: `debate:${debateId}`,
+        topic: "updates",
+        data: { type: "cross-exam", data: { round1: roundData } },
       });
     });
 

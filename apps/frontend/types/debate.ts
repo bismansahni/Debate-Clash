@@ -30,16 +30,6 @@ export interface Agent {
   systemPrompt: string;
 }
 
-export interface PreShowData {
-  context: string;
-  stakes: string;
-  predictions: string;
-  odds: {
-    pro: number;
-    con: number;
-  };
-}
-
 export interface CrossExamQuestion {
   question: string;
   intent: string;
@@ -106,14 +96,22 @@ export interface LightningRoundData {
   proAnswers: Array<{
     answer: string;
     concession_made: boolean;
-    directness: number;
   }>;
   conAnswers: Array<{
     answer: string;
     concession_made: boolean;
-    directness: number;
   }>;
   concessionsMade: string[];
+}
+
+export interface QuickJudgment {
+  judgeName: string;
+  persona: string;
+  scores: {
+    pro: number;
+    con: number;
+  };
+  verdict: string;
 }
 
 export interface DebateData {
@@ -128,62 +126,62 @@ export interface DebateData {
   agents?: Agent[];
   momentum?: MomentumData;
   phases?: {
-    preShow?: PreShowData;
     openingStatements?: {
-      proStatement?: any;
-      conStatement?: any;
+      proStatement?: {
+        agent: string;
+        statement: string;
+        tone: string;
+        timestamp: number;
+      };
+      conStatement?: {
+        agent: string;
+        statement: string;
+        tone: string;
+        timestamp: number;
+      };
     };
     crossExamination?: {
       round1?: CrossExamRound;
-      round2?: CrossExamRound;
     };
     rebuttals?: {
-      proRebuttal?: any;
-      conRebuttal?: any;
-    };
-    audienceQuestions?: {
-      questions: Array<{
-        persona: {
-          name: string;
-          age?: number;
-          perspective: string;
-          bias: string;
-        };
-        question: string;
-        challenges: string;
-        forces_specificity: boolean;
-      }>;
-      proResponses: Array<{
-        question: string;
-        persona: string;
-        answer: string;
-      }>;
-      conResponses: Array<{
-        question: string;
-        persona: string;
-        answer: string;
-      }>;
+      proRebuttal?: {
+        agent: string;
+        rebuttal: string;
+        tone: string;
+        timestamp: number;
+      };
+      conRebuttal?: {
+        agent: string;
+        rebuttal: string;
+        tone: string;
+        timestamp: number;
+      };
     };
     lightningRound?: LightningRoundData;
     closingStatements?: {
-      proClosing?: any;
-      conClosing?: any;
+      proClosing?: {
+        agent: string;
+        statement: string;
+        tone: string;
+        timestamp: number;
+      };
+      conClosing?: {
+        agent: string;
+        statement: string;
+        tone: string;
+        timestamp: number;
+      };
     };
     verdict?: {
-      logicScore?: any;
-      evidenceScore?: any;
-      rhetoricScore?: any;
+      logicScore?: QuickJudgment;
+      evidenceScore?: QuickJudgment;
+      rhetoricScore?: QuickJudgment;
       finalScore?: {
         pro: number;
         con: number;
         winner: string;
         margin: number;
       };
-    };
-    deliberation?: {
-      logicJudge?: any;
-      evidenceJudge?: any;
-      rhetoricJudge?: any;
     };
   };
   controversyMoments?: ControversyMoment[];

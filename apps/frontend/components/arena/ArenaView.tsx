@@ -3,16 +3,15 @@
 import { AnimatePresence, motion } from "framer-motion";
 import type { DebateData } from "@/types/debate";
 import { AgentDisplay } from "./AgentDisplay";
-import { AudienceQuestionScene } from "./AudienceQuestionScene";
 import { BroadcastHUD } from "./BroadcastHUD";
 import { CourtroomLayout, getActiveSpeakers } from "./CourtroomLayout";
 import { CrossExamScene } from "./CrossExamScene";
 import { LightningRoundScene } from "./LightningRoundScene";
 import { OpeningStatementsScene } from "./OpeningStatementsScene";
 import { PhaseTimeline } from "./PhaseTimeline";
-import { PreShowScene } from "./PreShowScene";
 import { RebuttalsScene } from "./RebuttalsScene";
 import { VerdictScene } from "./VerdictScene";
+import { ClosingStatementsScene } from "./ClosingStatementsScene";
 
 interface ArenaViewProps {
   debate: DebateData;
@@ -22,9 +21,7 @@ function renderPhaseContent(phase: string, debate: DebateData, proAgent: any, co
   const key = `phase-${phase}`;
 
   switch (phase) {
-    case "pre-show":
     case "preparing":
-    case "researching":
       return (
         <motion.div
           key={key}
@@ -34,13 +31,47 @@ function renderPhaseContent(phase: string, debate: DebateData, proAgent: any, co
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
           className="space-y-8"
         >
+          {/* Topic Title */}
+          <div className="text-center py-8 sm:py-12">
+            <span
+              className="inline-block px-5 py-2 border font-[family-name:var(--font-jetbrains)]
+                         text-[0.65rem] uppercase tracking-[0.25em] mb-6"
+              style={{
+                borderColor: "var(--arena-border-active)",
+                color: "var(--arena-text-muted)",
+                background: "var(--arena-surface)",
+              }}
+            >
+              Tonight&apos;s Debate
+            </span>
+
+            <h1
+              className="font-[family-name:var(--font-chakra)] font-bold
+                       text-3xl sm:text-4xl lg:text-5xl xl:text-6xl
+                       text-[var(--arena-text)] leading-tight mb-6 px-4"
+            >
+              {debate.topic}
+            </h1>
+
+            <div className="flex items-center justify-center gap-3">
+              <div className="w-16 h-px bg-gradient-to-r from-transparent to-[var(--pro)]" />
+              <span
+                className="font-[family-name:var(--font-jetbrains)] text-[0.6rem]
+                           uppercase tracking-[0.3em] text-[var(--arena-text-dim)]"
+              >
+                Live Combat
+              </span>
+              <div className="w-16 h-px bg-gradient-to-l from-transparent to-[var(--con)]" />
+            </div>
+          </div>
+
+          {/* Agent intro cards */}
           {proAgent && conAgent && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
               <AgentDisplay agent={proAgent} side="pro" index={0} />
               <AgentDisplay agent={conAgent} side="con" index={1} />
             </div>
           )}
-          <PreShowScene data={debate.phases?.preShow} agents={debate.agents} topic={debate.topic} />
         </motion.div>
       );
 
@@ -73,7 +104,6 @@ function renderPhaseContent(phase: string, debate: DebateData, proAgent: any, co
         >
           <CrossExamScene
             round1={debate.phases?.crossExamination?.round1}
-            round2={debate.phases?.crossExamination?.round2}
             proAgent={proAgent?.persona?.name}
             conAgent={conAgent?.persona?.name}
           />
@@ -98,25 +128,6 @@ function renderPhaseContent(phase: string, debate: DebateData, proAgent: any, co
         </motion.div>
       );
 
-    case "audience-questions":
-      return (
-        <motion.div
-          key={key}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.5 }}
-        >
-          <AudienceQuestionScene
-            questions={debate.phases?.audienceQuestions?.questions}
-            proResponses={debate.phases?.audienceQuestions?.proResponses}
-            conResponses={debate.phases?.audienceQuestions?.conResponses}
-            proAgent={proAgent?.persona?.name}
-            conAgent={conAgent?.persona?.name}
-          />
-        </motion.div>
-      );
-
     case "lightning-round":
       return (
         <motion.div
@@ -134,31 +145,47 @@ function renderPhaseContent(phase: string, debate: DebateData, proAgent: any, co
         </motion.div>
       );
 
-    case "verdict":
-    case "judging":
-    case "deliberation": {
+    case "closing-statements":
+      return (
+        <motion.div
+          key={key}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.5 }}
+        >
+          <ClosingStatementsScene
+            proClosing={debate.phases?.closingStatements?.proClosing}
+            conClosing={debate.phases?.closingStatements?.conClosing}
+            proAgent={proAgent?.persona?.name}
+            conAgent={conAgent?.persona?.name}
+          />
+        </motion.div>
+      );
+
+    case "verdict": {
       const verdictData = debate.phases?.verdict;
       const judges = verdictData
         ? [
             verdictData.logicScore && {
-              name: "Prof. Ada Lovelace",
+              name: verdictData.logicScore.judgeName,
               expertise: "Logical Reasoning",
               scores: verdictData.logicScore.scores,
-              reasoning: verdictData.logicScore.reasoning,
+              reasoning: verdictData.logicScore.verdict,
             },
             verdictData.evidenceScore && {
-              name: "Dr. Carl Sagan",
+              name: verdictData.evidenceScore.judgeName,
               expertise: "Evidence & Data",
               scores: verdictData.evidenceScore.scores,
-              reasoning: verdictData.evidenceScore.reasoning,
+              reasoning: verdictData.evidenceScore.verdict,
             },
             verdictData.rhetoricScore && {
-              name: "Maya Angelou",
+              name: verdictData.rhetoricScore.judgeName,
               expertise: "Rhetoric & Persuasion",
               scores: verdictData.rhetoricScore.scores,
-              reasoning: verdictData.rhetoricScore.reasoning,
+              reasoning: verdictData.rhetoricScore.verdict,
             },
-          ].filter(Boolean)
+          ].filter((j): j is { name: string; expertise: string; scores: { pro: number; con: number }; reasoning: string } => Boolean(j))
         : undefined;
 
       const winner = verdictData?.finalScore
@@ -213,7 +240,7 @@ export function ArenaView({ debate }: ArenaViewProps) {
   const currentPhase = debate.currentPhase?.type || "preparing";
   const proAgent = debate.agents?.find((a) => a.side === "pro");
   const conAgent = debate.agents?.find((a) => a.side === "con");
-  const isPreShow = ["preparing", "researching", "pre-show"].includes(currentPhase);
+  const isPreparing = currentPhase === "preparing";
   const activeSpeakers = getActiveSpeakers(currentPhase);
 
   return (
@@ -221,11 +248,11 @@ export function ArenaView({ debate }: ArenaViewProps) {
       {/* Background grid */}
       <div className="fixed inset-0 arena-grid pointer-events-none" />
 
-      {/* Simplified HUD — only after pre-show */}
-      {!isPreShow && <BroadcastHUD topic={debate.topic} currentPhase={currentPhase} momentum={debate.momentum} />}
+      {/* Simplified HUD — only after preparing */}
+      {!isPreparing && <BroadcastHUD topic={debate.topic} currentPhase={currentPhase} momentum={debate.momentum} />}
 
       {/* Phase Timeline */}
-      {!isPreShow && (
+      {!isPreparing && (
         <div className="relative z-10 border-b border-[var(--arena-border)] flex-shrink-0">
           <PhaseTimeline currentPhase={currentPhase} progress={debate.currentPhase?.progress || 0} />
         </div>
@@ -233,8 +260,8 @@ export function ArenaView({ debate }: ArenaViewProps) {
 
       {/* Main: Courtroom + Content */}
       <main className="relative z-10 flex-1 overflow-hidden flex flex-col">
-        {/* Persistent Courtroom Layout — appears after pre-show, stays for all phases */}
-        {!isPreShow && debate.agents && debate.agents.length > 0 && (
+        {/* Persistent Courtroom Layout — appears after preparing, stays for all phases */}
+        {!isPreparing && debate.agents && debate.agents.length > 0 && (
           <div className="flex-shrink-0 border-b border-[var(--arena-border)]">
             <CourtroomLayout
               agents={debate.agents}

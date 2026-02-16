@@ -11,10 +11,8 @@ const PHASES = [
   { id: "opening-statements", label: "OPEN", short: "OPN" },
   { id: "cross-examination", label: "CROSS", short: "CRS" },
   { id: "rebuttals", label: "REBUT", short: "RBT" },
-  { id: "audience-questions", label: "AUDIENCE", short: "AUD" },
   { id: "lightning-round", label: "LIGHTNING", short: "LTG" },
   { id: "closing-statements", label: "CLOSE", short: "CLS" },
-  { id: "deliberation", label: "JUDGES", short: "JDG" },
   { id: "verdict", label: "VERDICT", short: "VRD" },
 ];
 
@@ -34,7 +32,7 @@ export function PhaseTimeline({ currentPhase }: PhaseTimelineProps) {
               <div
                 className={`
                   relative px-2.5 sm:px-4 py-1.5 text-center transition-all duration-300
-                  font-[family-name:var(--font-jetbrains)] text-[0.55rem] sm:text-[0.65rem]
+                  font-[family-name:var(--font-jetbrains)] text-xs sm:text-sm
                   uppercase tracking-wider
                   ${
                     isActive

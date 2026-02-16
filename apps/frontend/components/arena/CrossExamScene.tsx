@@ -1,22 +1,17 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState } from "react";
 import { TypewriterText } from "@/components/ui/TypewriterText";
 import type { CrossExamRound } from "@/types/debate";
 
 interface CrossExamSceneProps {
   round1?: CrossExamRound;
-  round2?: CrossExamRound;
   proAgent?: string;
   conAgent?: string;
 }
 
-export function CrossExamScene({ round1, round2, proAgent = "Pro", conAgent = "Con" }: CrossExamSceneProps) {
-  const [selectedRound, setSelectedRound] = useState<1 | 2>(1);
-  const currentRound = selectedRound === 1 ? round1 : round2;
-
-  if (!currentRound) {
+export function CrossExamScene({ round1, proAgent = "Pro", conAgent = "Con" }: CrossExamSceneProps) {
+  if (!round1) {
     return (
       <div className="flex flex-col items-center justify-center py-10 sm:py-16">
         <div className="flex gap-1.5 mb-4">
@@ -33,50 +28,20 @@ export function CrossExamScene({ round1, round2, proAgent = "Pro", conAgent = "C
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-      {/* Header + Round selector */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <div className="font-[family-name:var(--font-jetbrains)] text-[0.6rem] uppercase tracking-[0.3em] text-[var(--arena-text-dim)] mb-2">
-            Phase 02
-          </div>
-          <h2 className="font-[family-name:var(--font-chakra)] font-bold text-2xl sm:text-3xl text-[var(--arena-text)]">
-            Cross-Examination
-          </h2>
+      {/* Header */}
+      <div>
+        <div className="font-[family-name:var(--font-jetbrains)] text-xs uppercase tracking-[0.3em] text-[var(--arena-text-dim)] mb-2">
+          Phase 02
         </div>
-
-        <div className="flex gap-2">
-          <button
-            onClick={() => setSelectedRound(1)}
-            className={`px-4 py-2 font-[family-name:var(--font-jetbrains)] text-xs uppercase tracking-wider
-              transition-all duration-300 border
-              ${
-                selectedRound === 1
-                  ? "text-[var(--arena-text)] border-[var(--arena-border-active)] bg-[var(--arena-surface-hover)]"
-                  : "text-[var(--arena-text-dim)] border-[var(--arena-border)] hover:text-[var(--arena-text-muted)]"
-              }`}
-          >
-            Round 1
-          </button>
-          <button
-            onClick={() => setSelectedRound(2)}
-            disabled={!round2}
-            className={`px-4 py-2 font-[family-name:var(--font-jetbrains)] text-xs uppercase tracking-wider
-              transition-all duration-300 border disabled:opacity-30 disabled:cursor-not-allowed
-              ${
-                selectedRound === 2
-                  ? "text-[var(--arena-text)] border-[var(--arena-border-active)] bg-[var(--arena-surface-hover)]"
-                  : "text-[var(--arena-text-dim)] border-[var(--arena-border)] hover:text-[var(--arena-text-muted)]"
-              }`}
-          >
-            Round 2
-          </button>
-        </div>
+        <h2 className="font-[family-name:var(--font-chakra)] font-bold text-2xl sm:text-3xl text-[var(--arena-text)]">
+          Cross-Examination
+        </h2>
       </div>
 
       {/* Q&A Exchanges - Rally format */}
       <div className="space-y-4">
-        {currentRound.questions.map((question, idx) => {
-          const answer = currentRound.answers[idx];
+        {round1.questions.map((question, idx) => {
+          const answer = round1.answers[idx];
           if (!answer) return null;
 
           return (
@@ -95,7 +60,7 @@ export function CrossExamScene({ round1, round2, proAgent = "Pro", conAgent = "C
                 <div className="flex items-start gap-3">
                   <div
                     className="flex-shrink-0 w-7 h-7 rounded-sm flex items-center justify-center border
-                               font-[family-name:var(--font-jetbrains)] text-[0.55rem] font-bold"
+                               font-[family-name:var(--font-jetbrains)] text-xs font-bold"
                     style={{
                       borderColor: "var(--pro)",
                       color: "var(--pro)",
@@ -105,8 +70,8 @@ export function CrossExamScene({ round1, round2, proAgent = "Pro", conAgent = "C
                     Q{idx + 1}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-[family-name:var(--font-jetbrains)] text-[0.55rem] text-[var(--arena-text-dim)] uppercase tracking-wider mb-2">
-                      {currentRound.questioner} asks:
+                    <div className="font-[family-name:var(--font-jetbrains)] text-xs text-[var(--arena-text-dim)] uppercase tracking-wider mb-2">
+                      {round1.questioner} asks:
                     </div>
                     <TypewriterText
                       text={question.question}
@@ -115,7 +80,7 @@ export function CrossExamScene({ round1, round2, proAgent = "Pro", conAgent = "C
                     {/* Meta tags */}
                     <div className="flex flex-wrap gap-2 mt-3">
                       <span
-                        className="px-2 py-0.5 text-[0.55rem] font-[family-name:var(--font-jetbrains)] uppercase tracking-wider border"
+                        className="px-2 py-0.5 text-xs font-[family-name:var(--font-jetbrains)] uppercase tracking-wider border"
                         style={{
                           borderColor: "var(--con)",
                           color: "var(--con)",
@@ -125,7 +90,7 @@ export function CrossExamScene({ round1, round2, proAgent = "Pro", conAgent = "C
                         {question.intent}
                       </span>
                       <span
-                        className="px-2 py-0.5 text-[0.55rem] font-[family-name:var(--font-jetbrains)] uppercase tracking-wider
+                        className="px-2 py-0.5 text-xs font-[family-name:var(--font-jetbrains)] uppercase tracking-wider
                                  text-[var(--arena-text-dim)] border border-[var(--arena-border)]"
                       >
                         Target: {question.target_weakness}
@@ -140,7 +105,7 @@ export function CrossExamScene({ round1, round2, proAgent = "Pro", conAgent = "C
                 <div className="flex items-start gap-3">
                   <div
                     className="flex-shrink-0 w-7 h-7 rounded-sm flex items-center justify-center border
-                               font-[family-name:var(--font-jetbrains)] text-[0.55rem] font-bold"
+                               font-[family-name:var(--font-jetbrains)] text-xs font-bold"
                     style={{
                       borderColor: "var(--con)",
                       color: "var(--con)",
@@ -150,8 +115,8 @@ export function CrossExamScene({ round1, round2, proAgent = "Pro", conAgent = "C
                     A{idx + 1}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-[family-name:var(--font-jetbrains)] text-[0.55rem] text-[var(--arena-text-dim)] uppercase tracking-wider mb-2">
-                      {currentRound.respondent} responds:
+                    <div className="font-[family-name:var(--font-jetbrains)] text-xs text-[var(--arena-text-dim)] uppercase tracking-wider mb-2">
+                      {round1.respondent} responds:
                     </div>
                     <TypewriterText
                       text={answer.answer}
@@ -160,7 +125,7 @@ export function CrossExamScene({ round1, round2, proAgent = "Pro", conAgent = "C
                     {/* Strategy tags */}
                     <div className="flex flex-wrap gap-2 mt-3">
                       <span
-                        className="px-2 py-0.5 text-[0.55rem] font-[family-name:var(--font-jetbrains)] uppercase tracking-wider border"
+                        className="px-2 py-0.5 text-xs font-[family-name:var(--font-jetbrains)] uppercase tracking-wider border"
                         style={{
                           borderColor:
                             answer.strategy === "COUNTER_ATTACK"
@@ -186,7 +151,7 @@ export function CrossExamScene({ round1, round2, proAgent = "Pro", conAgent = "C
                       </span>
                       {answer.evasion && (
                         <span
-                          className="px-2 py-0.5 text-[0.55rem] font-[family-name:var(--font-jetbrains)] uppercase tracking-wider border"
+                          className="px-2 py-0.5 text-xs font-[family-name:var(--font-jetbrains)] uppercase tracking-wider border"
                           style={{
                             borderColor: "var(--con)",
                             color: "var(--con)",
@@ -206,56 +171,56 @@ export function CrossExamScene({ round1, round2, proAgent = "Pro", conAgent = "C
       </div>
 
       {/* Round Analysis */}
-      {currentRound.analysis && (
+      {round1.analysis && (
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
           className="arena-panel p-5 sm:p-6"
         >
-          <div className="font-[family-name:var(--font-jetbrains)] text-[0.6rem] uppercase tracking-[0.2em] text-[var(--arena-text-dim)] mb-4">
+          <div className="font-[family-name:var(--font-jetbrains)] text-xs uppercase tracking-[0.2em] text-[var(--arena-text-dim)] mb-4">
             Round Analysis
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-5">
             <div className="text-center">
-              <div className="font-[family-name:var(--font-jetbrains)] text-[0.5rem] uppercase tracking-wider text-[var(--arena-text-dim)] mb-1">
+              <div className="font-[family-name:var(--font-jetbrains)] text-xs uppercase tracking-wider text-[var(--arena-text-dim)] mb-1">
                 Directness
               </div>
               <div className="font-[family-name:var(--font-jetbrains)] text-2xl font-light text-[var(--arena-text)]">
-                {currentRound.analysis.directness_score}
+                {round1.analysis.directness_score}
                 <span className="text-[var(--arena-text-dim)] text-sm">/10</span>
               </div>
             </div>
             <div className="text-center">
-              <div className="font-[family-name:var(--font-jetbrains)] text-[0.5rem] uppercase tracking-wider text-[var(--arena-text-dim)] mb-1">
+              <div className="font-[family-name:var(--font-jetbrains)] text-xs uppercase tracking-wider text-[var(--arena-text-dim)] mb-1">
                 Concessions
               </div>
               <div className="font-[family-name:var(--font-jetbrains)] text-2xl font-light text-[var(--arena-text)]">
-                {currentRound.analysis.concessions_made.length}
+                {round1.analysis.concessions_made.length}
               </div>
             </div>
             <div className="text-center">
-              <div className="font-[family-name:var(--font-jetbrains)] text-[0.5rem] uppercase tracking-wider text-[var(--arena-text-dim)] mb-1">
+              <div className="font-[family-name:var(--font-jetbrains)] text-xs uppercase tracking-wider text-[var(--arena-text-dim)] mb-1">
                 Round Winner
               </div>
               <div className="font-[family-name:var(--font-chakra)] font-semibold text-sm text-[#22c55e]">
-                {currentRound.analysis.winner === "questioner"
-                  ? currentRound.questioner
-                  : currentRound.analysis.winner === "respondent"
-                    ? currentRound.respondent
+                {round1.analysis.winner === "questioner"
+                  ? round1.questioner
+                  : round1.analysis.winner === "respondent"
+                    ? round1.respondent
                     : "Tie"}
               </div>
             </div>
           </div>
 
-          {currentRound.analysis.key_exchange && (
+          {round1.analysis.key_exchange && (
             <div className="pt-4 border-t border-[var(--arena-border)]">
-              <div className="font-[family-name:var(--font-jetbrains)] text-[0.55rem] uppercase tracking-wider text-[var(--gold)] mb-2">
+              <div className="font-[family-name:var(--font-jetbrains)] text-xs uppercase tracking-wider text-[var(--gold)] mb-2">
                 Key Exchange
               </div>
               <p className="font-[family-name:var(--font-source-serif)] text-sm text-[var(--arena-text-muted)] leading-relaxed">
-                {currentRound.analysis.key_exchange}
+                {round1.analysis.key_exchange}
               </p>
             </div>
           )}

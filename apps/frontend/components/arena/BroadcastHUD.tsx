@@ -41,7 +41,7 @@ export function BroadcastHUD({ topic, currentPhase, momentum }: BroadcastHUDProp
           {/* LIVE badge */}
           <div className="flex items-center gap-1.5 flex-shrink-0">
             <div className="w-1.5 h-1.5 rounded-full bg-[#22c55e] animate-flicker" />
-            <span className="font-[family-name:var(--font-jetbrains)] text-[0.5rem] sm:text-[0.6rem] text-[#22c55e] uppercase tracking-wider font-bold">
+            <span className="font-[family-name:var(--font-jetbrains)] text-[0.65rem] sm:text-xs text-[#22c55e] uppercase tracking-wider font-bold">
               Live
             </span>
           </div>
@@ -56,7 +56,7 @@ export function BroadcastHUD({ topic, currentPhase, momentum }: BroadcastHUDProp
 
           {/* Mini momentum */}
           <div className="hidden sm:flex items-center gap-1.5 flex-shrink-0">
-            <span className="font-[family-name:var(--font-jetbrains)] text-[0.5rem] text-[var(--pro)]">
+            <span className="font-[family-name:var(--font-jetbrains)] text-[0.65rem] text-[var(--pro)]">
               {proPercent}
             </span>
             <div className="w-12 h-1 bg-[var(--arena-surface)] rounded-full overflow-hidden flex">
@@ -73,7 +73,7 @@ export function BroadcastHUD({ topic, currentPhase, momentum }: BroadcastHUDProp
                 transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
               />
             </div>
-            <span className="font-[family-name:var(--font-jetbrains)] text-[0.5rem] text-[var(--con)]">
+            <span className="font-[family-name:var(--font-jetbrains)] text-[0.65rem] text-[var(--con)]">
               {100 - proPercent}
             </span>
           </div>
@@ -82,7 +82,7 @@ export function BroadcastHUD({ topic, currentPhase, momentum }: BroadcastHUDProp
           <div className="w-px h-3 bg-[var(--arena-border)]" />
 
           {/* Phase label */}
-          <span className="font-[family-name:var(--font-jetbrains)] text-[0.5rem] sm:text-[0.55rem] text-[var(--arena-text-dim)] uppercase tracking-wider flex-shrink-0">
+          <span className="font-[family-name:var(--font-jetbrains)] text-[0.65rem] sm:text-xs text-[var(--arena-text-muted)] uppercase tracking-wider flex-shrink-0">
             {phaseLabel}
           </span>
         </div>

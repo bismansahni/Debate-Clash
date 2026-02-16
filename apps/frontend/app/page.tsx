@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { startDebate } from "@/app/actions/debate-actions";
 import { ArenaView } from "@/components/arena/ArenaView";
+import { useDebateRealtime } from "@/hooks/use-debate-realtime";
 
 const TOPICS = [
   "Should AI replace human judges?",
@@ -60,41 +61,26 @@ function RotatingPlaceholder() {
 }
 
 export default function DebateArena() {
-  const [debateData, setDebateData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [debateId, setDebateId] = useState<string | null>(null);
+  const [debateTopic, setDebateTopic] = useState("");
   const [inputValue, setInputValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (!debateId) return;
+  // Realtime subscription -- streams data directly from Inngest functions
+  const { debateData } = useDebateRealtime(debateId, debateTopic);
 
-    const pollInterval = setInterval(async () => {
-      try {
-        const response = await fetch(`/api/debate/${debateId}`);
-        if (response.ok) {
-          const data = await response.json();
-          setDebateData(data);
-          if (data.status === "completed") {
-            clearInterval(pollInterval);
-          }
-        }
-      } catch (error) {
-        console.error("Error polling debate status:", error);
-      }
-    }, 2000);
-
-    return () => clearInterval(pollInterval);
-  }, [debateId]);
+  // Only show ArenaView once we have a debateId
+  const showDebate = !!debateId;
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError("");
-    setDebateData(null);
 
     const formData = new FormData(e.currentTarget);
+    const topic = formData.get("query") as string;
     const result = await startDebate(formData);
 
     if (result.error) {
@@ -105,17 +91,12 @@ export default function DebateArena() {
 
     if (result.success && result.debateId) {
       setDebateId(result.debateId);
-      setDebateData({
-        debateId: result.debateId,
-        topic: formData.get("query") as string,
-        status: "researching",
-        currentPhase: "Initializing debate...",
-      });
+      setDebateTopic(topic);
       setLoading(false);
     }
   };
 
-  if (debateData) {
+  if (showDebate) {
     return (
       <>
         <ArenaView debate={debateData} />
@@ -123,8 +104,8 @@ export default function DebateArena() {
           <div className="fixed bottom-6 right-6 sm:bottom-8 sm:right-8 z-50">
             <button
               onClick={() => {
-                setDebateData(null);
                 setDebateId(null);
+                setDebateTopic("");
                 setError("");
                 setInputValue("");
               }}

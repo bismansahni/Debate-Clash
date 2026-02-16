@@ -7,18 +7,18 @@ import { enhancedDebateStore } from "../state/enhanced-debate-store.ts";
 
 /**
  * Lightning Round
- * Rapid-fire tough questions that force quick, direct answers
- * Creates tension and can force concessions
+ * 2 rapid-fire questions, 10-word answers. No hedging.
+ * Questions generated first, then all 4 answers (2 agents x 2 questions) in parallel.
  */
 export const lightningRoundFunction = inngest.createFunction(
   { id: "lightning-round" },
   { event: "lightning/start" },
-  async ({ event, step }) => {
+  async ({ event, step, publish }) => {
     const { debateId, topic, agents } = event.data;
 
     console.log(`⚡ Starting lightning round for: "${topic}"`);
 
-    // Step 1: Generate lightning questions
+    // Step 1: Generate 2 lightning questions (sequential -- needed before answers)
     const questions = await step.run("generate-lightning-questions", async () => {
       const result = await generateText({
         model: gateway("google/gemini-3-flash"),
@@ -27,87 +27,122 @@ export const lightningRoundFunction = inngest.createFunction(
             questions: z.array(LightningQuestionSchema),
           }),
         }),
-        prompt: `Generate 4 RAPID-FIRE questions for this debate.
+        prompt: `Generate 2 RAPID-FIRE questions for this debate.
 
 DEBATE TOPIC: "${topic}"
 
 These are LIGHTNING questions - short, punchy, force binary choices or hard commitments.
 
 REQUIREMENTS:
-- Each question under 20 words
-- Forces a clear position (no "it depends" or "both/and")
+- Each question under 15 words
+- Forces a clear position (no "it depends")
 - Makes agents uncomfortable
-- Reveals their true priorities or red lines
 
-QUESTION TYPES:
-1. Binary choice: "If you had to choose: safety or speed?"
-2. Commitment test: "Name ONE regulation you'd oppose"
-3. Red line: "At what point would you change your position? Be specific."
-4. Gotcha: "You said X earlier. Does that mean you support Y?"
-
-Example questions:
-- "Is ANY level of AI risk acceptable? Yes or no."
-- "Name ONE historical regulation that actually prevented progress entirely."
-- "If your approach fails, what's your red line for admitting it?"
-- "Would you rather: slow AI with safety, or fast AI with risk?"
-
-For each question:
-- question (the actual question)
-- time_limit_seconds (30 or 60)
-- forces_position (true/false)
-
-Return 4 questions that will make agents squirm.`,
+Return 2 questions.`,
       });
 
       console.log(`✅ Generated ${result.output.questions.length} lightning questions`);
       return result.output.questions;
     });
 
-    // Step 2: Get rapid responses from both agents
-    const allAnswers = await step.run("get-all-answers", async () => {
-      const answerSets = {
-        pro: [] as any[],
-        con: [] as any[],
-      };
+    const proAgent = agents.find((a: any) => a.side === "pro") || agents[0];
+    const conAgent = agents.find((a: any) => a.side === "con") || agents[1];
 
-      for (const agent of agents) {
-        const side = agent.side as "pro" | "con"; // Use explicit side field
+    // Step 2: Fan out all 4 answers in parallel (2 agents x 2 questions)
+    const [proAnswer0, proAnswer1, conAnswer0, conAnswer1] = await Promise.all([
+      step.run("answer-pro-q0", async () => {
+        const result = await generateText({
+          model: gateway("google/gemini-3-flash"),
+          output: Output.object({ schema: LightningAnswerSchema }),
+          prompt: `LIGHTNING ROUND - Answer in 10 words or less. No hedging.
 
-        for (const question of questions) {
-          const result = await generateText({
-            model: gateway("google/gemini-3-flash"),
-            output: Output.object({
-              schema: LightningAnswerSchema,
-            }),
-            prompt: `LIGHTNING ROUND - Answer in ${question.time_limit_seconds} seconds or less!
+You are ${proAgent.persona.name}.
+YOUR STANCE: ${proAgent.stance}
 
-You are ${agent.persona.name}.
-YOUR STANCE: ${agent.stance}
-
-QUESTION: ${question.question}
+QUESTION: ${questions[0]!.question}
 
 RULES:
-- Maximum ${question.time_limit_seconds === 30 ? "50" : "100"} words
+- 10 words MAXIMUM
 - Be DIRECT - no hedging, no "it depends"
 - If the question forces a choice, CHOOSE
-- If it asks for a red line, GIVE ONE
-- If it asks for an example, NAME ONE
-
-If you must make a concession, do it quickly and move on.
 
 Your rapid-fire answer:`,
-          });
+        });
+        console.log(`✅ ${proAgent.persona.name} answered Q1: "${result.output.answer}"`);
+        return result.output;
+      }),
 
-          const answer = result.output;
+      step.run("answer-pro-q1", async () => {
+        const result = await generateText({
+          model: gateway("google/gemini-3-flash"),
+          output: Output.object({ schema: LightningAnswerSchema }),
+          prompt: `LIGHTNING ROUND - Answer in 10 words or less. No hedging.
 
-          answerSets[side].push(answer);
+You are ${proAgent.persona.name}.
+YOUR STANCE: ${proAgent.stance}
 
-          console.log(`✅ ${agent.persona.name} answered: "${answer.answer.substring(0, 50)}..."`);
-        }
-      }
+QUESTION: ${questions[1]!.question}
 
-      return answerSets;
-    });
+RULES:
+- 10 words MAXIMUM
+- Be DIRECT - no hedging, no "it depends"
+- If the question forces a choice, CHOOSE
+
+Your rapid-fire answer:`,
+        });
+        console.log(`✅ ${proAgent.persona.name} answered Q2: "${result.output.answer}"`);
+        return result.output;
+      }),
+
+      step.run("answer-con-q0", async () => {
+        const result = await generateText({
+          model: gateway("google/gemini-3-flash"),
+          output: Output.object({ schema: LightningAnswerSchema }),
+          prompt: `LIGHTNING ROUND - Answer in 10 words or less. No hedging.
+
+You are ${conAgent.persona.name}.
+YOUR STANCE: ${conAgent.stance}
+
+QUESTION: ${questions[0]!.question}
+
+RULES:
+- 10 words MAXIMUM
+- Be DIRECT - no hedging, no "it depends"
+- If the question forces a choice, CHOOSE
+
+Your rapid-fire answer:`,
+        });
+        console.log(`✅ ${conAgent.persona.name} answered Q1: "${result.output.answer}"`);
+        return result.output;
+      }),
+
+      step.run("answer-con-q1", async () => {
+        const result = await generateText({
+          model: gateway("google/gemini-3-flash"),
+          output: Output.object({ schema: LightningAnswerSchema }),
+          prompt: `LIGHTNING ROUND - Answer in 10 words or less. No hedging.
+
+You are ${conAgent.persona.name}.
+YOUR STANCE: ${conAgent.stance}
+
+QUESTION: ${questions[1]!.question}
+
+RULES:
+- 10 words MAXIMUM
+- Be DIRECT - no hedging, no "it depends"
+- If the question forces a choice, CHOOSE
+
+Your rapid-fire answer:`,
+        });
+        console.log(`✅ ${conAgent.persona.name} answered Q2: "${result.output.answer}"`);
+        return result.output;
+      }),
+    ]);
+
+    const allAnswers = {
+      pro: [proAnswer0, proAnswer1],
+      con: [conAnswer0, conAnswer1],
+    };
 
     // Step 3: Identify concessions
     const concessions = await step.run("identify-concessions", async () => {
@@ -115,34 +150,38 @@ Your rapid-fire answer:`,
 
       [...allAnswers.pro, ...allAnswers.con].forEach((answer: any, idx: number) => {
         if (answer.concession_made) {
-          const agent = idx < allAnswers.pro.length ? agents[0].persona : agents[1].persona;
-          allConcessions.push(`${agent}: ${answer.answer}`);
+          const agent = idx < allAnswers.pro.length ? proAgent.persona : conAgent.persona;
+          allConcessions.push(`${agent.name}: ${answer.answer}`);
         }
       });
 
-      console.log(`🎯 Identified ${allConcessions.length} concessions`);
       return allConcessions;
     });
 
-    // Step 4: Store results
+    // Step 4: Store results + publish
     await step.run("store-results", async () => {
-      enhancedDebateStore.setLightningRound(debateId, {
+      const lightningData = {
         questions,
         proAnswers: allAnswers.pro,
         conAnswers: allAnswers.con,
         concessionsMade: concessions,
-      });
+      };
 
+      enhancedDebateStore.setLightningRound(debateId, lightningData);
       enhancedDebateStore.updatePhase(debateId, "lightning-round", "Complete", 1.0);
+
+      await publish({
+        channel: `debate:${debateId}`,
+        topic: "updates",
+        data: { type: "lightning", data: lightningData },
+      });
     });
 
     // Step 5: Emit completion event
     await step.run("emit-completion", async () => {
       await inngest.send({
         name: "lightning/complete",
-        data: {
-          debateId,
-        },
+        data: { debateId },
       });
       console.log("✅ Lightning round complete event sent");
     });

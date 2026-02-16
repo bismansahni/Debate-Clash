@@ -18,7 +18,7 @@ export function LiveStats({ debate }: LiveStatsProps) {
         </span>
         <div className="flex items-center gap-1.5">
           <div className="w-1.5 h-1.5 rounded-full bg-[#22c55e] animate-flicker" />
-          <span className="font-[family-name:var(--font-jetbrains)] text-[0.5rem] text-[var(--arena-text-dim)]">
+          <span className="font-[family-name:var(--font-jetbrains)] text-xs text-[var(--arena-text-dim)]">
             LIVE
           </span>
         </div>
@@ -33,12 +33,12 @@ export function LiveStats({ debate }: LiveStatsProps) {
 
       {debate.momentum?.history && debate.momentum.history.length > 0 && (
         <div className="arena-panel p-3">
-          <div className="font-[family-name:var(--font-jetbrains)] text-[0.55rem] uppercase tracking-wider text-[var(--arena-text-dim)] mb-2">
+          <div className="font-[family-name:var(--font-jetbrains)] text-xs uppercase tracking-wider text-[var(--arena-text-dim)] mb-2">
             Recent Shifts
           </div>
           <div className="space-y-1.5">
             {debate.momentum.history.slice(-3).map((event, idx) => (
-              <div key={idx} className="flex items-center gap-2 text-[0.55rem]">
+              <div key={idx} className="flex items-center gap-2 text-xs">
                 <div
                   className="w-1.5 h-1.5 rounded-full flex-shrink-0"
                   style={{ background: event.shift > 0 ? "var(--pro)" : "var(--con)" }}
@@ -65,7 +65,7 @@ function StatBox({ label, value }: { label: string; value: number }) {
       <div className="font-[family-name:var(--font-jetbrains)] text-xl font-light text-[var(--arena-text)] mb-0.5">
         {value}
       </div>
-      <div className="font-[family-name:var(--font-jetbrains)] text-[0.5rem] uppercase tracking-wider text-[var(--arena-text-dim)]">
+      <div className="font-[family-name:var(--font-jetbrains)] text-xs uppercase tracking-wider text-[var(--arena-text-dim)]">
         {label}
       </div>
     </motion.div>
@@ -79,7 +79,7 @@ function calculateDebateStats(debate: DebateData) {
   let totalCounterAttacks = 0;
 
   if (debate.phases?.crossExamination) {
-    [debate.phases.crossExamination.round1, debate.phases.crossExamination.round2].filter(Boolean).forEach((round) => {
+    [debate.phases.crossExamination.round1].filter(Boolean).forEach((round) => {
       if (round) {
         totalQuestions += round.questions.length;
         totalConcessions += round.analysis.concessions_made.length;
