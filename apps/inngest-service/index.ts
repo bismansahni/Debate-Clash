@@ -12,7 +12,11 @@ const app = express();
 // Enable CORS for Next.js frontend
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:3001"],
+    origin: [
+      "http://localhost:3000",
+      "http://localhost:3001",
+      process.env.FRONTEND_URL || "https://debate-clash.vercel.app",
+    ],
     credentials: true,
   }),
 );
@@ -66,7 +70,8 @@ app.get("/api/enhanced-debates", (_req, res) => {
 // Set up the "/api/inngest" routes with the serve handler
 app.use("/api/inngest", serve({ client: inngest, functions }));
 
-app.listen(3001, () => {
+const port = process.env.PORT || 3001;
+app.listen(port, () => {
   console.log("\n🎭 AI Debate Arena");
   console.log("═══════════════════════════════════════");
   console.log("Server running on http://localhost:3001");
